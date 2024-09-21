@@ -8,6 +8,7 @@ body {
   justify-content: center;
   align-items: center;
   background-color: #f0f0f0;
+  overflow:hidden;
 }
 
 /* Loading screen styles */
@@ -43,10 +44,10 @@ body {
   position: absolute;
   justify-content: center;
   align-self:flex-end;
-  width: 200px;
-  height: 2px;
+  width: 150px;
+  height: 1.5px;
   background-color: #e0e0e0;
-  border-radius: 1px;
+  border-radius: 0.75px;
   overflow: hidden;
   margin-bottom: 100px;
 }
@@ -62,4 +63,43 @@ body {
 /* Hide the actual content initially */
 #content.hidden {
   display: none;
+}
+
+
+.circle-grid {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.circle{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -10;
+    height: 100%;
+    width: 100%;
+    background-color: #f0f0f0;
+    background-image: radial-gradient(#b5b5b5 1.5px, transparent 1.5px);
+    background-size: 40px 40px;
+    transform: scale(0.25);
+    animation: zoomGrid 2s forwards;
+}
+.pattern-overlay {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-image: radial-gradient(#f0f0f0 1.5px, transparent 1.5px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 70%, #000 100%);
+}
+@keyframes zoomGrid {
+    from {
+        transform: scale(0.25); /* Start small */
+    }
+    to {
+        transform: scale(1); /* Final size */
+    }
 }
