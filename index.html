@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alvaro Mieres</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loading-container">
+      <h1>alvaro mieres</h1>
+      </div>
+    <div class="loading-bar">
+        <div class="loading-fill" id="loading-fill"></div>
+      </div>
+  </div>
+
+  <!-- Actual Content -->
+  <div id="content" class="hidden">
+    
+  </div>
+    
+<!-- Loading Script -->
+  <script>
+    function randomTimeSegments(totalTime, numSegments) {
+      let segments = [];
+      let total = 0;
+
+      for (let i = 0; i < numSegments - 1; i++) {
+        let segment = Math.random() * (totalTime - total);
+        total += segment;
+        segments.push(segment);
+      }
+      // The last segment takes the remainder time to ensure total = totalTime
+      segments.push(totalTime - total);
+
+      return segments;
+    }
+
+    // Function to animate the loading bar
+    function animateLoadingBar() {
+      const fill = document.getElementById('loading-fill');
+      let numSections = Math.floor(Math.random() * 4) + 3; // Random sections between 3 and 6
+      let totalDuration = 2000; // 2 seconds total
+      let segments = randomTimeSegments(totalDuration, numSections);
+      let totalWidth = 0;
+
+      // Apply random delay of 1 second before starting
+      setTimeout(() => {
+        segments.forEach((segment, index) => {
+          setTimeout(() => {
+            totalWidth += 100 / numSections; // Increase width by segment fraction
+
+            // Smooth transition for each section
+            fill.style.transitionDuration = `${segment}ms`;
+            fill.style.width = totalWidth + "%";
+          }, segments.slice(0, index).reduce((a, b) => a + b, 0)); // Delay each segment by the sum of previous segments
+        });
+      }, 1000); // 1 second initial delay
+    }
+
+    // When the window loads, display the loading bar and hide it after 2 seconds
+    window.onload = function () {
+      animateLoadingBar();
+      
+      setTimeout(function () {
+        // Apply fade-out class for transition effect
+        document.getElementById('loading-screen').classList.add('fade-out');
+
+        // After the fade-out transition, hide the loading screen completely
+        setTimeout(function () {
+          document.getElementById('loading-screen').style.display = 'none';
+          document.getElementById('content').classList.remove('hidden');
+        }, 1000); // match the CSS fade-out duration
+      }, 3000); // Wait for 3 seconds (1s delay + 2s load)
+    };
+  </script>
+
+</body>
+</html>
