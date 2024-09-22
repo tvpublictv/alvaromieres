@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+    
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alvaro Mieres</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+    
 <body>
 
-  <!-- Loading Screen -->
+  <!-- LOADING SCREEN -->
+    
+    <!-- Screen -->
+    
   <div id="loading-screen">
     <div class="loading-container">
       <h1>alvaro mieres</h1>
@@ -17,73 +22,95 @@
         <div class="loading-fill" id="loading-fill"></div>
       </div>
   </div>
+        
+    <!-- Loading Script -->
+    
+  <script>
 
-  <!-- Actual Content -->
-  <div id="content" class="hidden">
+  function animateLoadingBar() {
+    const fill = document.getElementById('loading-fill');
+
+    setTimeout(() => {
+
+      fill.style.transitionDuration = '1500';
+      fill.style.width = '100%';
+    }, 250);
+  }
+
+  window.onload = function () {
+    animateLoadingBar();
+
+      //fade-out
+    setTimeout(function () {
+
+      document.getElementById('loading-screen').classList.add('fade-out');
+
+      // Hide the loading screen completely and show the content
+      setTimeout(function () {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('content').classList.remove('hidden');  
+      }, 1000); //duracion fade out
+    }, 200); //timeout until fade out starts
+  };
+</script>
+
+    
+  <!-- MAIN PAGE -->
+     
+    <div id="content" class="hidden">
+      
+    <!-- Header -->
+    <header>
+        <ul class="pill-box">
+            <li class="pill pill1">architecture
+            </li>
+            <li class="pill pill2">research
+            </li>
+            <li class="pill pill3">other
+            </li>
+            <li class="pill pill4">visual
+            </li>
+            <li class="pill pill5">art
+            </li>
+        
+        </ul>
+    
+    </header>
+        
+      <!-- Elipse mask overlay -->
+      <div class="gradient-overlay"></div>
       
       <!-- Circle Pattern -->
-        <div class="circle-grid">
-         </div><div class="circle">
-            <div class="pattern-overlay"></div>
-         </div>
-        </div>
-  </div>
-    
-<!-- Loading Script -->
-  <script>
-    function randomTimeSegments(totalTime, numSegments) {
-      let segments = [];
-      let total = 0;
-
-      for (let i = 0; i < numSegments - 1; i++) {
-        let segment = Math.random() * (totalTime - total);
-        total += segment;
-        segments.push(segment);
-      }
-      // The last segment takes the remainder time to ensure total = totalTime
-      segments.push(totalTime - total);
-
-      return segments;
-    }
-
-    // Function to animate the loading bar
-    function animateLoadingBar() {
-      const fill = document.getElementById('loading-fill');
-      let numSections = Math.floor(Math.random() * 4) + 3; // Random sections between 3 and 6
-      let totalDuration = 2000; // 2 seconds total
-      let segments = randomTimeSegments(totalDuration, numSections);
-      let totalWidth = 0;
-
-      // Apply random delay of 1 second before starting
-      setTimeout(() => {
-        segments.forEach((segment, index) => {
-          setTimeout(() => {
-            totalWidth += 100 / numSections; // Increase width by segment fraction
-
-            // Smooth transition for each section
-            fill.style.transitionDuration = `${segment}ms`;
-            fill.style.width = totalWidth + "%";
-          }, segments.slice(0, index).reduce((a, b) => a + b, 0)); // Delay each segment by the sum of previous segments
-        });
-      }, 1000); // 1 second initial delay
-    }
-
-    // When the window loads, display the loading bar and hide it after 2 seconds
-    window.onload = function () {
-      animateLoadingBar();
+      <div class="circle"></div>
       
-      setTimeout(function () {
-        // Apply fade-out class for transition effect
-        document.getElementById('loading-screen').classList.add('fade-out');
+     <!-- Update shadow direction based on mouse position -->
+      <script>
+      const circle = document.querySelector('.circle');
 
-        // After the fade-out transition, hide the loading screen completely
-        setTimeout(function () {
-          document.getElementById('loading-screen').style.display = 'none';
-          document.getElementById('content').classList.remove('hidden');
-        }, 1000); // match the CSS fade-out duration
-      }, 3000); // Wait for 3 seconds (1s delay + 2s load)
-    };
+      document.addEventListener('mousemove', (event) => {
+      const mouseX = event.clientX;
+      const mouseY = event.clientY;
+
+      // Get the center of the viewport
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      // Calculate unitary vector
+      const deltaX = -(mouseX - centerX) / window.innerWidth;
+      const deltaY = -(mouseY - centerY) / window.innerHeight;
+
+      // Calculate the shadowOffset
+      const offset = `min(0.2vw, 0.2vh)`;
+      const shadowOffsetX = `calc(${offset} * ${deltaX * 5})`; // Adjust for intensity
+      const shadowOffsetY = `calc(${offset} * ${deltaY * 5})`;
+
+    // Update the filter property to create the dynamic circular shadow
+    circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} calc(${offset} * 0.5) #595959)`;
+    });
   </script>
+  </div>
+
+    
 
 </body>
 </html>
