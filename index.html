@@ -1,116 +1,392 @@
 <!DOCTYPE html>
 <html lang="en">
-    
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alvaro Mieres</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alvaro Mieres & Scroll Date Change</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            margin: 0;
+            height: 500vh; /* Increased height for better scrolling */
+            width: 110vw; /* Width for horizontal scrolling */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-image: radial-gradient(#808080 min(0.2vw, 0.2vh), transparent min(0.2vw, 0.2vh));
+            background-size: min(4vw, 4vh) min(4vh, 4vh);
+            background-position: center; /* Center background horizontally */
+            background-color: #0f0f0f;
+            overflow: hidden; /* Hide scrollbar */
+            user-select: none; /* Prevent text selection globally */
+        }
+
+        /* --- LOADING SCREEN --- */
+
+        /* Loading screen styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f0f0f;
+            color: #e6e6e6;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Center the loading text */
+            z-index: 9999;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* Fade-out effect for the loading screen */
+        #loading-screen.fade-out {
+            opacity: 0;
+        }
+
+        /* Loading container */
+        .loading-container {
+            text-align: center;
+            font-size: min(1.2vw, 1.2vh);
+        }
+
+        /* Loading bar container */
+        .loading-bar {
+            position: absolute;
+            justify-content: center;
+            align-self: flex-end;
+            width: min(20vw, 20vh);
+            height: min(0.2vw, 0.2vh);
+            background-color: #1f1f1f;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: min(13.33vw, 13.33vh);
+        }
+
+        /* Loading bar fill */
+        #loading-fill {
+            height: 100%;
+            width: 0;
+            background-color: #e6e6e6;
+            transition: width 2s ease-in-out;
+        }
+
+        /* Date display styles */
+        .date-display {
+            z-index: 9998;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center; /* Center text */
+        }
+
+        .year {
+            font-size: min(3vw, 3vh); /* Larger size for year */
+            font-weight: lighter;
+            color: #cccccc;
+        }
+
+        .month {
+            font-size: min(1.5vw, 1.5vh); /* Smaller size for month */
+            font-weight: lighter;
+            color: #cccccc;
+        }
+
+        .scrollable-content {
+            height: 500vh; /* Extended for scrolling */
+            width: 110vw; /* Width for horizontal scrolling */
+        }
+
+        /* --- MAIN PAGE --- */
+
+        header {
+            height: 100vh;
+            width: 100vw;
+            background-color: rgba(255, 0, 0, 0);
+            position: absolute;
+            z-index: 9999;
+            display: none; /* Hide header by default */
+        }
+
+        .pill-box {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+        }
+
+        .pill-box li {
+            margin: 0 min(1.2vw, 1.2vh);
+        }
+
+        .pill {
+            padding: min(0.9vw, 0.9vh) min(1.8vw, 1.8vh);
+            color: #e6e6e6;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: min(0.21vw, 0.21vh) solid #575757;
+            font-size: min(1.82vw, 1.82vh);
+            font-family: Helvetica, sans-serif;
+            cursor: pointer;
+            text-align: center;
+            max-width: min(13.97vw, 13.97vh);
+            white-space: nowrap;
+            border-radius: 9999px;
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, border 0.3s ease-in-out;
+        }
+
+        .pill:hover {
+            background-color: rgba(200, 200, 200, 0.15);
+            transform: scale(1.05);
+            border-color: white;
+            border-style: solid;
+        }
+        
+        .pill1 {order: 3;}
+        .pill2 {order: 4;}
+        .pill3 {order: 5;}
+        .pill4 {order: 2;}
+        .pill5 {order: 1;}
+
+        .circle {
+            z-index: -10;
+            height: 100vh;
+            width: 100vw;
+            /* Circle pattern */
+            background-image: radial-gradient(#808080 min(0.2vw, 0.2vh), transparent min(0.2vw, 0.2vh));
+            background-size: min(4vw, 4vh) min(4vh, 4vh);
+            /* Initial scale for zoom effect */
+            transform: scale(0.25);
+            animation: zoomGrid 2s forwards;
+            position: relative;
+            filter: drop-shadow(0 0 0 #595959);
+            transition: filter 0;
+        }
+
+        .gradient-overlay {
+            position: fixed; /* Changed to fixed */
+            height: 80vh;
+            width: 80vw;
+            top: 0; /* Center vertically */
+            left: 0; /* Center horizontally */
+            transform: translate(-50%, -50%) scale(0.25);
+            border-width: 10vh 10vw 10vh 10vw;
+            border-style: solid;
+            border-color: rgba(15, 15, 15, 1);
+            background: radial-gradient(rgba(15, 15, 15, 0) 0%, rgba(15, 15, 15, 1) 80%);
+            pointer-events: none;
+            z-index: 1000;
+            animation: zoomGrid 2s forwards;
+        }
+
+        @keyframes zoomGrid {
+            from {
+                transform: scale(0.25);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+    </style>
 </head>
-    
+
 <body>
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="loading-container">
+            <h1>alvaro mieres</h1>
+        </div>
+        <div class="loading-bar">
+            <div class="loading-fill" id="loading-fill"></div>
+        </div>
+    </div>
 
-  <!-- LOADING SCREEN -->
-    
-    <!-- Screen -->
-    
-  <div id="loading-screen">
-    <div class="loading-container">
-      <h1>alvaro mieres</h1>
-      </div>
-    <div class="loading-bar">
-        <div class="loading-fill" id="loading-fill"></div>
-      </div>
-  </div>
-        
-    <!-- Loading Script -->
-    
-  <script>
-
-  function animateLoadingBar() {
-    const fill = document.getElementById('loading-fill');
-
-    setTimeout(() => {
-
-      fill.style.transitionDuration = '1500';
-      fill.style.width = '100%';
-    }, 250);
-  }
-
-  window.onload = function () {
-    animateLoadingBar();
-
-      //fade-out
-    setTimeout(function () {
-
-      document.getElementById('loading-screen').classList.add('fade-out');
-
-      // Hide the loading screen completely and show the content
-      setTimeout(function () {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('content').classList.remove('hidden');  
-      }, 1000); //duracion fade out
-    }, 2000); //timeout until fade out starts
-  };
-</script>
-
-    
-  <!-- MAIN PAGE -->
-     
+    <!-- MAIN PAGE -->
     <div id="content" class="hidden">
-      
-    <!-- Header -->
-    <header>
-        <ul class="pill-box">
-            <li class="pill pill1">architecture
-            </li>
-            <li class="pill pill2">research
-            </li>
-            <li class="pill pill3">other
-            </li>
-            <li class="pill pill4">visual
-            </li>
-            <li class="pill pill5">art
-            </li>
-        
-        </ul>
+        <div class="date-display" id="dateDisplay">
+            <div class="year" id="yearDisplay"></div>
+            <div class="month" id="monthDisplay"></div>
+        </div>
+        <div class="scrollable-content"></div>
+
+        <!-- Header -->
+        <header>
+            <ul class="pill-box">
+                <li class="pill pill1">architecture</li>
+                <li class="pill pill2">research</li>
+                <li class="pill pill3">other</li>
+                <li class="pill pill4">visual</li>
+                <li class="pill pill5">art</li>
+            </ul>
+        </header>
+
+        <!-- Elipse mask overlay -->
+        <div class="gradient-overlay"></div>
+
+        <!-- Circle Pattern -->
+        <div class="circle"></div>
+    </div>
     
-    </header>
-        
-      <!-- Elipse mask overlay -->
-      <div class="gradient-overlay"></div>
-      
-      <!-- Circle Pattern -->
-      <div class="circle"></div>
-      
-     <!-- Update shadow direction based on mouse position -->
-      <script>
-      const circle = document.querySelector('.circle');
+    <!-- Update shadow direction based on mouse position -->
+        <script>
+            const circle = document.querySelector('.circle');
 
-      document.addEventListener('mousemove', (event) => {
-      const mouseX = event.clientX;
-      const mouseY = event.clientY;
+            document.addEventListener('mousemove', (event) => {
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
 
-      // Get the center of the viewport
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+                // Get the center of the viewport
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
 
-      // Calculate unitary vector
-      const deltaX = -(mouseX - centerX) / window.innerWidth;
-      const deltaY = -(mouseY - centerY) / window.innerHeight;
+                // Calculate unitary vector
+                const deltaX = -(mouseX - centerX) / window.innerWidth;
+                const deltaY = -(mouseY - centerY) / window.innerHeight;
 
-      // Calculate the shadowOffset
-      const offset = `min(0.2vw, 0.2vh)`;
-      const shadowOffsetX = `calc(${offset} * ${deltaX * 5})`; // Adjust for intensity
-      const shadowOffsetY = `calc(${offset} * ${deltaY * 5})`;
+                // Calculate the shadowOffset
+                const offset = `min(0.2vw, 0.2vh)`;
+                const shadowOffsetX = `calc(${offset} * ${deltaX * 5})`; // Adjust for intensity 
+                const shadowOffsetY = `calc(${offset} * ${deltaY * 5})`;
 
-    // Update the filter property to create the dynamic circular shadow
-    circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} calc(${offset} * 0.5) #595959)`;
-    });
-  </script>
-  </div>
-
+                // Update the filter property to create the dynamic circular shadow COLOR #595959
+                circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} calc(${offset} * 0.5) #595959)`;
+            });
+        </script>
     
 
+    <!-- Loading Script -->
+    <script>
+        function animateLoadingBar() {
+            const fill = document.getElementById('loading-fill');
+
+            setTimeout(() => {
+                fill.style.transitionDuration = '1500';
+                fill.style.width = '100%';
+            }, 250);
+        }
+
+        window.onload = function () {
+            animateLoadingBar();
+
+            //fade-out
+            setTimeout(function () {
+                document.getElementById('loading-screen').classList.add('fade-out');
+
+                // Hide the loading screen completely and show the content
+                setTimeout(function () {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('content').classList.remove('hidden');
+                    document.querySelector('header').style.display = 'block'; // Show header after loading
+                }, 1000); // duration fade out
+            }, 2000); // timeout until fade out starts
+        };
+
+        const yearDisplay = document.getElementById('yearDisplay');
+        const monthDisplay = document.getElementById('monthDisplay');
+
+        // Set the starting year and month
+        const startYear = 2024;
+        const startMonthIndex = 7; // August (0-indexed)
+
+        // Function to update the displayed date based on scroll position
+        function updateDate() {
+            const scrollY = window.scrollY;
+            const totalScrollHeight = document.body.scrollHeight - window.innerHeight;
+
+            // Calculate month index and year based on vertical scrolling
+            const totalMonths = Math.floor((scrollY / totalScrollHeight) * 80); // 80 months for 6 years
+            const monthIndex = (startMonthIndex - totalMonths + 12) % 12; // Adjust for negative months
+            const currentYear = startYear - Math.floor(totalMonths / 12); // Decrement year
+
+            // Get month names
+            const monthNames = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+
+            // Ensure year stays within range
+            if (currentYear < 2018) {
+                return; // Stop updating if below 2018
+            }
+
+            // Update the date display
+            yearDisplay.innerHTML = currentYear;
+            monthDisplay.innerHTML = monthNames[monthIndex];
+        }
+
+        // Add scroll event listener
+        window.addEventListener('scroll', updateDate);
+
+        // Custom scrolling logic
+        let isDragging = false;
+        let startY, startX;
+        let scrollSpeedY = 0;
+        let scrollSpeedX = 0;
+        let targetScrollSpeedY = 0; // Target vertical scroll speed
+        let targetScrollSpeedX = 0; // Target horizontal scroll speed
+        const acceleration = 0.05; // Slower acceleration factor
+        const deceleration = 0.95; // Deceleration factor
+
+        function mouseDown(e) {
+            isDragging = true;
+            startY = e.clientY; // Get the initial Y position
+            startX = e.clientX; // Get the initial X position
+            document.body.style.cursor = 'grabbing'; // Change cursor
+        }
+
+        function mouseUp() {
+            isDragging = false;
+            document.body.style.cursor = 'default'; // Reset cursor
+        }
+
+        function mouseMove(e) {
+            if (!isDragging) return;
+
+            const deltaY = startY - e.clientY; // Calculate vertical difference
+            const deltaX = startX - e.clientX; // Calculate horizontal difference
+            startY = e.clientY; // Update startY for the next move
+            startX = e.clientX; // Update startX for the next move
+
+            targetScrollSpeedY = deltaY * 0.5; // Scale the target vertical scroll speed
+            targetScrollSpeedX = deltaX * 0.5; // Scale the target horizontal scroll speed
+        }
+
+        function smoothScroll() {
+            if (isDragging) {
+                // Smoothly adjust scroll speeds
+                scrollSpeedY += (targetScrollSpeedY - scrollSpeedY) * acceleration;
+                scrollSpeedX += (targetScrollSpeedX - scrollSpeedX) * acceleration;
+
+                window.scrollBy(scrollSpeedX, scrollSpeedY); // Scroll the window
+            } else {
+                // Apply deceleration when mouse is released
+                scrollSpeedY *= deceleration;
+                scrollSpeedX *= deceleration;
+
+                window.scrollBy(scrollSpeedX, scrollSpeedY);
+            }
+
+            requestAnimationFrame(smoothScroll);
+        }
+
+        // Event listeners for mouse dragging
+        window.addEventListener('mousedown', mouseDown);
+        window.addEventListener('mouseup', mouseUp);
+        window.addEventListener('mousemove', mouseMove);
+
+        // Start the smooth scrolling animation
+        smoothScroll();
+
+        // Initial call to set the starting date
+        updateDate();
+    </script>
 </body>
+
 </html>
