@@ -9,8 +9,8 @@ body {
     flex-direction: column;
     cursor: move;
 
-    background-color: #0f0f0f; /*#0f0f0f*/
-    background-size: min(4vw, 4vh) min(4vh, 4vh);
+    background-color: #f0f0f0; /*#0f0f0f*/
+    background-size: min(4vw, 4vh) min(4vw, 4vh);
     background-position: center;
 
 
@@ -18,10 +18,7 @@ body {
     user-select: none;
 }
 
-/* Disable all mouse events */
-.disabled {
-    pointer-events: none;
-}
+
 /* Background */
 .circle {
     position: absolute;
@@ -30,14 +27,20 @@ body {
     left: 0;
     height: 100vh;
     width: 100vw;
-    background-color: rgba(0, 100, 0, 0);
-    background-image: radial-gradient(rgb(199, 199, 199) min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
-    background-size: min(4vw, 4vh) min(4vh, 4vh);
-    transform: scale(0.25);
     
-    filter: drop-shadow(rgb(89, 89, 89) 0px 0px 0px);
-    background-position: center center;
+    background-color: rgba(0, 100, 0, 0);
+    background-image: radial-gradient(#383838 min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
+    background-size: min(4vw, 4vh) min(4vw, 4vh);
+    
+    transform: scale(0.25);
+    animation-timeline: auto;
+    animation-range-start: normal;
+    animation-range-end: normal;
     animation: 2s ease 2s 1 normal forwards running zoomGrid;
+    
+    filter: drop-shadow(#a6a6a6 0px 0px 0px);
+    background-position: center center;
+    
 }
 
 /* --- LOADING SCREEN --- */
@@ -48,8 +51,8 @@ body {
     left: 0px;
     width: 100vw;
     height: 100vh;
-    background-color: rgb(15, 15, 15);
-    color: rgb(230, 230, 230);
+    background-color: #f0f0f0;
+    color: #191919;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -70,7 +73,7 @@ body {
     align-self: flex-end;
     width: min(20vw, 20vh);
     height: min(0.2vw, 0.2vh);
-    background-color: rgb(31, 31, 31);
+    background-color: #e0e0e0;
     margin-bottom: min(13.33vw, 13.33vh);
     border-radius: 9999px;
     overflow: hidden;
@@ -78,9 +81,11 @@ body {
 #loading-fill {
     height: 100%;
     width: 0px;
-    background-color: rgb(230, 230, 230);
+    background-color: #191919;
     transition: width 2s ease-in-out;
 }
+
+
 /* --- MAIN PAGE --- */
 
 /* Starting fade-in */
@@ -115,12 +120,12 @@ header {
 .year {
     font-size: min(3vw, 3vh);
     font-weight: lighter;
-    color: rgb(204, 204, 204);
+    color: #333333;
 }
 .month {
     font-size: min(1.5vw, 1.5vh);
     font-weight: lighter;
-    color: rgb(204, 204, 204);
+    color: #333333;
 }
 
 /* Index */
@@ -137,8 +142,8 @@ header {
     list-style: none;
 }
 .pill {
-    color: rgb(230, 230, 230);
-    background-color: rgba(0, 0, 0, 0.5);
+    color: #191919;
+    background-color: rgba(255, 255, 255, 0.5);
     font-size: min(1.82vw, 1.82vh);
     font-family: Helvetica, sans-serif;
     cursor: pointer;
@@ -147,16 +152,16 @@ header {
     padding: min(0.9vw, 0.9vh) min(1.8vw, 1.8vh);
     border-width: min(0.21vw, 0.21vh);
     border-style: solid;
-    border-color: rgb(87, 87, 87);
+    border-color: #a8a8a8;
     border-image: initial;
     white-space: nowrap;
     border-radius: 9999px;
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, border 0.3s ease-in-out;
 }
 .pill:hover {
-    background-color: rgba(200, 200, 200, 0.15);
+    background-color: rgba(255, 255, 255, 1);
     transform: scale(1.05);
-    border-color: white;
+    border-color: black;
     border-style: solid;
 }
 .pill-box li {
@@ -191,11 +196,11 @@ header {
     top: 0;
     left: 0;
     transform: scale(0.25);
-    box-shadow: 0 0 0 min(100vw, 100vh) #0f0f0f;
+    box-shadow: 0 0 0 min(100vw, 100vh) #f0f0f0;
     border-width: 0vh 0vw 0vh 0vw;
     border-style: solid;
     border-color: rgba(15, 15, 15, 1);
-    background: radial-gradient(rgba(15, 15, 15, 0) 0%, rgba(15, 15, 15, 1) 70%);
+    background: radial-gradient(rgba(240, 240, 240, 0) 0%, rgba(240, 240, 240, 1) 70%);
     pointer-events: none;
     z-index: 1000;
     animation: zoomGrid 2s forwards 2s;
