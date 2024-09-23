@@ -68,11 +68,11 @@ body {
     font-size: min(1.2vw, 1.2vh);
 }
 .loading-bar {
-    position: absolute;
+    position: fixed;
     justify-content: center;
     align-self: flex-end;
     width: min(20vw, 20vh);
-    height: min(0.2vw, 0.2vh);
+    height: min(0.4vw, 0.4vh);
     background-color: #e0e0e0;
     margin-bottom: min(13.33vw, 13.33vh);
     border-radius: 9999px;
@@ -120,19 +120,18 @@ header {
 .year {
     font-size: min(3vw, 3vh);
     font-weight: lighter;
-    color: #333333;
+    color: #191919;
 }
 .month {
     font-size: min(1.5vw, 1.5vh);
     font-weight: lighter;
-    color: #333333;
+    color: #191919;
 }
 
 /* Index */
 .pill-box {
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    justify-content: center; /* Center content horizontally */
     align-items: center;
     position: fixed;
     width: 100%;
@@ -141,47 +140,46 @@ header {
     bottom: 0px;
     list-style: none;
 }
+
 .pill {
     color: #191919;
     background-color: rgba(255, 255, 255, 0.5);
     font-size: min(1.82vw, 1.82vh);
     font-family: Helvetica, sans-serif;
     cursor: pointer;
-    text-align: center;
+
     max-width: min(13.97vw, 13.97vh);
     padding: min(0.9vw, 0.9vh) min(1.8vw, 1.8vh);
     border-width: min(0.21vw, 0.21vh);
     border-style: solid;
     border-color: #a8a8a8;
-    border-image: initial;
-    white-space: nowrap;
     border-radius: 9999px;
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, border 0.3s ease-in-out;
 }
+
 .pill:hover {
     background-color: rgba(255, 255, 255, 1);
     transform: scale(1.05);
     border-color: black;
-    border-style: solid;
 }
+
 .pill-box li {
-    margin: 0px min(1.2vw, 1.2vh);
+    margin: 0 min(1.2vw, 1.2vh);
 }
+
+/* Center pill1 and position pills around it */
 .pill1 {
-    order: 3;
+    order: 0; /* Center pill1 */
 }
-.pill2 {
-    order: 4;
+
+.pill2, .pill3 {
+    order: 1; /* To the right of pill1 */
 }
-.pill3 {
-    order: 5;
+
+.pill4, .pill5 {
+    order: -1; /* To the left of pill1 */
 }
-.pill4 {
-    order: 2;
-}
-.pill5 {
-    order: 1;
-}
+
 
 .scrollable-content {
     height: 400vh;
@@ -206,7 +204,7 @@ header {
     animation: zoomGrid 2s forwards 2s;
 }
 
-@keyframes zoomGrid {
+@keyframes zoomGrid { 
     from {
         transform: scale(0.25);
     }

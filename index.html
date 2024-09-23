@@ -282,7 +282,27 @@
     updateDate();
 }
         
+      
         
+        window.addEventListener('load', () => {
+            const pill1 = document.querySelector('.pill1');
+            const pillBox = document.querySelector('.pill-box');
+
+            // Get the total width of the viewport
+            const totalWidth = pillBox.innerWidth;
+
+            // Get the bounding rectangle of pill1
+            const pill1Rect = pill1.getBoundingClientRect();
+            
+            // Calculate the center of pill1
+            const pill1Center = pill1Rect.left + (pill1Rect.width / 2);
+
+            // Calculate the difference between center of viewport and center of pill1
+                const offset = (totalWidth / 2) - pill1Center;
+
+            // Apply translation
+            pillBox.style.transform = `translateX(${-offset}px)`;
+            });
     </script>
 </body>
 
