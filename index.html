@@ -19,16 +19,17 @@
         </div>
     </div>
 
+    
     <!-- MAIN PAGE -->
     <div id="content" class="hidden">
         
-        <div class="scrollable-content"></div>
+        <div id="main" class="scrollable-content"></div>
 
         <!-- Header -->
         <header>
             
             <!-- Date -->
-            <div class="date-display" id="dateDisplay">
+            <div class="date" id="dateDisplay">
                 <div class="year" id="yearDisplay"></div>
                 <div class="month" id="monthDisplay"></div>
             </div>
@@ -47,35 +48,19 @@
         <div class="gradient-overlay"></div>
 
         <!-- Circle Pattern -->
-        <div id="circle-pattern" class="circle"></div>
+        <div id="circle-pattern" class="circle disabled"></div>
     </div>
 
-    <!-- JavaScript for shadow effect and date display -->
-    <script>
-        const circle = document.querySelector('.circle');
-
-        document.addEventListener('mousemove', (event) => {
-            const mouseX = event.clientX;
-            const mouseY = event.clientY;
-
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-
-            const deltaX = -(mouseX - centerX) / window.innerWidth;
-            const deltaY = -(mouseY - centerY) / window.innerHeight;
-
-            const offset = `min(0.2vw, 0.2vh)`;
-            const shadowOffsetX = `calc(${offset} * ${deltaX * 5})`;
-            const shadowOffsetY = `calc(${offset} * ${deltaY * 5})`;
-
-            circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} calc(${offset} * 0.5) #595959)`;
-        });
-    </script>
-
-    <!-- Loading Script -->
+    
+    
+    <!-- SCRIPTS -->
+    
     <script>
         
-        //Loading bar animation
+        
+        
+        // --- LOADING BAR
+        
         function animateLoadingBar() {
             const fill = document.getElementById('loading-fill');
 
@@ -85,6 +70,11 @@
             }, 250);
         }
 
+        
+        
+        // --- ONLOAD ANIMATIONS
+        
+        let allowMovement= false;
         window.onload = function () {
             
             // Center the viewport horizontally
@@ -92,16 +82,20 @@
             window.scrollTo(centerX, 0);
             
             animateLoadingBar();
-
+            
+            main.classList.add('disabled')
+            
+            //Loading screen Fade Out
             setTimeout(function () {
                 document.getElementById('loading-screen').classList.add('fade-out');
 
+                //Content Fade In
                 setTimeout(function () {
                     document.getElementById('loading-screen').style.display = 'none';
                     document.getElementById('content').classList.remove('hidden');
+                    document.getElementById('content').classList.add('fade-in');
                     document.querySelector('header').style.display = 'block';
-                    
-                    
+
                     
                 }, 1000);
             }, 2000);
@@ -113,10 +107,14 @@
                     patternSize.style.height = '500vh'; //hay que poner 100 mas
                     patternSize.style.left = '-5vw';
                 
+                    main.classList.remove('disabled');
+                    
+                    allowMovement= true;
+                    setupMovementHandlers();
+
             }, 4000);
         };
-        
-       
+         
         // Reset scroll position before the page is unloaded (for refresh)
         window.onbeforeunload = function() {
             const centerX = (document.body.scrollWidth - window.innerWidth) / 2;
@@ -124,86 +122,167 @@
         }
 
         
+        
+        // --- GRID SHADOW
+        const sizeFactor = 5;
+        
+        const circle = document.querySelector('.circle');
+        document.addEventListener('mousemove', (event) => {
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            const deltaX = -(mouseX - centerX) / window.innerWidth;
+            const deltaY = -(mouseY - centerY) / window.innerHeight;
+
+            const offset = `min(0.2vw, 0.2vh)`;
+            const shadowOffsetX = `calc(${offset} * ${deltaX * sizeFactor})`;
+            const shadowOffsetY = `calc(${offset} * ${deltaY * sizeFactor})`;
+            
+            const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+            const standardDeviation = `calc(${offset} * ${distance * 1.66})`; // Scale the distance as needed
+
+            circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} ${standardDeviation} #808080)`;
+        });
+        
+        
+        
+        // --- DATE ---
+        
+        const startYear = 2024;
+        const startPercentage = 0.13;
+        
         const yearDisplay = document.getElementById('yearDisplay');
         const monthDisplay = document.getElementById('monthDisplay');
-        const startYear = 2024;
-        const startMonthIndex = 7;
+
+        // Custom for each year
+        const scrollPercentages = {
+            2024: 0.65,
+            2023: 0.35,
+            2022: 0.10,
+            2021: 0.10,
+            2020: 0.10,
+            2019: 0.10,
+            2018: 0.10,
+            // Max is at 133% 
+        };
+
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        const totalYears = Object.keys(scrollPercentages).length;
 
         function updateDate() {
             const scrollY = window.scrollY;
             const totalScrollHeight = document.body.scrollHeight - window.innerHeight;
-            const totalMonths = Math.floor((scrollY / totalScrollHeight) * 80);
-            const monthIndex = (startMonthIndex - totalMonths + 12) % 12;
-            const currentYear = startYear - Math.floor(totalMonths / 12);
+    
+            // Total page scrolled percentage
+            const scrollPercent = (scrollY / totalScrollHeight)+startPercentage;
 
-            const monthNames = [
-                'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ];
+            let cumulativeScrollPercent = 0;
+            let currentYear = startYear;
+            let monthsPassed = 0;
 
-            if (currentYear < 2018) {
-                return;
+            // Year we're in based on scroll percentage
+            for (let year = startYear; year >= startYear - totalYears + 1; year--) {
+                const yearScrollPercent = scrollPercentages[year];
+                cumulativeScrollPercent += yearScrollPercent;
+
+            if (scrollPercent <= cumulativeScrollPercent) {
+                currentYear = year;
+
+                // Calculate how many months have passed in the current year
+                const yearScrollRange = yearScrollPercent;
+                const yearScrollStart = cumulativeScrollPercent - yearScrollRange;
+                const yearScrollProgress = (scrollPercent - yearScrollStart) / yearScrollRange;
+
+                // Convert the scroll progress to months (0 to 11, reversed)
+                monthsPassed = Math.floor((1 - yearScrollProgress) * 12);
+                break;
+            }
             }
 
-            yearDisplay.innerHTML = currentYear;
-            monthDisplay.innerHTML = monthNames[monthIndex];
+        // Ensure monthsPassed wraps around within 0-11 range
+        monthsPassed = (monthsPassed + 12) % 12;
+
+        // Display the current year and month
+        yearDisplay.innerHTML = currentYear;
+        monthDisplay.innerHTML = monthNames[monthsPassed];
         }
 
+        // Call updateDate on scroll
         window.addEventListener('scroll', updateDate);
 
-        let isDragging = false;
-        let startY, startX;
-        let scrollSpeedY = 0;
-        let scrollSpeedX = 0;
-        let targetScrollSpeedY = 0;
-        let targetScrollSpeedX = 0;
-        const acceleration = 0.05;
-        const deceleration = 0.95;
 
-        function mouseDown(e) {
-            isDragging = true;
-            startY = e.clientY;
-            startX = e.clientX;
-            document.body.style.cursor = 'grabbing';
+        
+        
+        // --- SCROLLING ---
+        function setupMovementHandlers() {
+    let isDragging = false;
+    let startY, startX;
+    let scrollSpeedY = 0;
+    let scrollSpeedX = 0;
+    let targetScrollSpeedY = 0;
+    let targetScrollSpeedX = 0;
+    const acceleration = 0.05;
+    const deceleration = 0.95;
+
+    function startDrag(e) {
+        isDragging = true;
+        // Use clientY/clientX for mouse events, or changed touches[0] for touch events
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+    }
+
+    function endDrag() {
+        isDragging = false;
+    }
+
+    function move(e) {
+        if (!isDragging) return;
+
+        const deltaY = startY - (e.touches ? e.touches[0].clientY : e.clientY);
+        const deltaX = startX - (e.touches ? e.touches[0].clientX : e.clientX);
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+
+        targetScrollSpeedY = deltaY * 0.5;
+        targetScrollSpeedX = deltaX * 0.5;
+    }
+
+    function smoothScroll() {
+        if (isDragging) {
+            scrollSpeedY += (targetScrollSpeedY - scrollSpeedY) * acceleration;
+            scrollSpeedX += (targetScrollSpeedX - scrollSpeedX) * acceleration;
+            window.scrollBy(scrollSpeedX, scrollSpeedY);
+        } else {
+            scrollSpeedY *= deceleration;
+            scrollSpeedX *= deceleration;
+            window.scrollBy(scrollSpeedX, scrollSpeedY);
         }
+        
+        requestAnimationFrame(smoothScroll);
+    }
 
-        function mouseUp() {
-            isDragging = false;
-            document.body.style.cursor = 'default';
-        }
+    // Mouse events
+    window.addEventListener('mousedown', startDrag);
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('mousemove', move);
 
-        function mouseMove(e) {
-            if (!isDragging) return;
+    // Touch events
+    window.addEventListener('touchstart', startDrag);
+    window.addEventListener('touchend', endDrag);
+    window.addEventListener('touchmove', move);
 
-            const deltaY = startY - e.clientY;
-            const deltaX = startX - e.clientX;
-            startY = e.clientY;
-            startX = e.clientX;
-
-            targetScrollSpeedY = deltaY * 0.5;
-            targetScrollSpeedX = deltaX * 0.5;
-        }
-
-        function smoothScroll() {
-            if (isDragging) {
-                scrollSpeedY += (targetScrollSpeedY - scrollSpeedY) * acceleration;
-                scrollSpeedX += (targetScrollSpeedX - scrollSpeedX) * acceleration;
-                window.scrollBy(scrollSpeedX, scrollSpeedY);
-            } else {
-                scrollSpeedY *= deceleration;
-                scrollSpeedX *= deceleration;
-                window.scrollBy(scrollSpeedX, scrollSpeedY);
-            }
-
-            requestAnimationFrame(smoothScroll);
-        }
-
-        window.addEventListener('mousedown', mouseDown);
-        window.addEventListener('mouseup', mouseUp);
-        window.addEventListener('mousemove', mouseMove);
-
-        smoothScroll();
-        updateDate();
+    smoothScroll();
+    updateDate();
+}
+        
+        
     </script>
 </body>
 

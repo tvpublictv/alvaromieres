@@ -18,11 +18,17 @@ body {
     user-select: none;
 }
 
+/* Disable all mouse events */
+.disabled {
+    pointer-events: none;
+}
+
+
+
 /* Background */
 .circle {
     position: absolute;
     z-index: -9;
-    cursor: move;
     
     top:0;
     left:0;
@@ -46,6 +52,7 @@ body {
 /* --- LOADING SCREEN --- */
 #loading-screen {
     position: fixed;
+    cursor:crosshair;
     top: 0;
     left: 0;
     width: 100vw;
@@ -91,6 +98,16 @@ body {
 
 /* --- MAIN PAGE --- */
 
+/* Starting fade-in */
+#content{
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#content.fade-in{
+    opacity: 1;
+}
+
+
 /* Header */
 header {
     height: 100vh;
@@ -103,7 +120,7 @@ header {
 
 
 /* Date */
-.date-display {
+.date {
     position: fixed;
     top: min(2.7vw, 2.7vh);
     left: 50%;
@@ -122,6 +139,7 @@ header {
     font-weight: lighter;
     color: #cccccc;
 }
+
 
 /* Index */
 .pill-box {
@@ -169,9 +187,7 @@ header {
 .scrollable-content {
     height: 400vh;
     width: 110vw;
-    cursor: move;
 }
-
 
 .gradient-overlay {
     position: fixed;
