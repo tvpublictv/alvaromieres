@@ -1,289 +1,211 @@
-<!DOCTYPE html>
-<html lang="en">
+body {
+    font-family: Helvetica, sans-serif;
+    margin: 0; 
+    height: 400vh;
+    width: 110vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    cursor: move;
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alvaro Mieres</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
-</head>
-
-<body>
-    <!-- LOADING SCREEN -->
-    <div id="loading-screen">
-        <div class="loading-container">
-            <h1>alvaro mieres</h1>
-        </div>
-        <div class="loading-bar">
-            <div class="loading-fill" id="loading-fill"></div>
-        </div>
-    </div>
-
-    
-    <!-- MAIN PAGE -->
-    <div id="content" class="hidden">
-        
-        <div id="main" class="scrollable-content"></div>
-
-        <!-- Header -->
-        <header>
-            
-            <!-- Date -->
-            <div class="date" id="dateDisplay">
-                <div class="year" id="yearDisplay"></div>
-                <div class="month" id="monthDisplay"></div>
-            </div>
-            
-            <!-- Index -->
-            <ul class="pill-box">
-                <li class="pill pill1">architecture</li>
-                <li class="pill pill2">research</li>
-                <li class="pill pill3">other</li>
-                <li class="pill pill4">visual</li>
-                <li class="pill pill5">art</li>
-            </ul>
-        </header>
-
-        <!-- Elipse mask overlay -->
-        <div class="gradient-overlay"></div>
-
-        <!-- Circle Pattern -->
-        <div id="circle-pattern" class="circle disabled"></div>
-    </div>
-
-    
-    
-    <!-- SCRIPTS -->
-    
-    <script>
-        
-        
-        
-        // --- LOADING BAR
-        
-        function animateLoadingBar() {
-            const fill = document.getElementById('loading-fill');
-
-            setTimeout(() => {
-                fill.style.transitionDuration = '1500';
-                fill.style.width = '100%';
-            }, 250);
-        }
-
-        
-        
-        // --- ONLOAD ANIMATIONS
-        
-        let allowMovement= false;
-        window.onload = function () {
-            
-            // Center the viewport horizontally
-            const centerX = (document.body.scrollWidth - window.innerWidth) / 2;
-            window.scrollTo(centerX, 0);
-            
-            animateLoadingBar();
-            
-            main.classList.add('disabled')
-            
-            //Loading screen Fade Out
-            setTimeout(function () {
-                document.getElementById('loading-screen').classList.add('fade-out');
-
-                //Content Fade In
-                setTimeout(function () {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('content').classList.remove('hidden');
-                    document.getElementById('content').classList.add('fade-in');
-                    document.querySelector('header').style.display = 'block';
-
-                    
-                }, 1000);
-            }, 2000);
-            
-            setTimeout(function () {
-                
-                const patternSize = document.getElementById('circle-pattern');
-                    patternSize.style.width = '110vw';  // Change width
-                    patternSize.style.height = '500vh'; //hay que poner 100 mas
-                    patternSize.style.left = '-5vw';
-                
-                    main.classList.remove('disabled');
-                    
-                    allowMovement= true;
-                    setupMovementHandlers();
-
-            }, 4000);
-        };
-         
-        // Reset scroll position before the page is unloaded (for refresh)
-        window.onbeforeunload = function() {
-            const centerX = (document.body.scrollWidth - window.innerWidth) / 2;
-            window.scrollTo(centerX, 0);
-        }
-
-        
-        
-        // --- GRID SHADOW
-        const sizeFactor = 5;
-        
-        const circle = document.querySelector('.circle');
-        document.addEventListener('mousemove', (event) => {
-            const mouseX = event.clientX;
-            const mouseY = event.clientY;
-
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-
-            const deltaX = -(mouseX - centerX) / window.innerWidth;
-            const deltaY = -(mouseY - centerY) / window.innerHeight;
-
-            const offset = `min(0.2vw, 0.2vh)`;
-            const shadowOffsetX = `calc(${offset} * ${deltaX * sizeFactor})`;
-            const shadowOffsetY = `calc(${offset} * ${deltaY * sizeFactor})`;
-            
-            const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-            const standardDeviation = `calc(${offset} * ${distance * 1.66})`; // Scale the distance as needed
-
-            circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} ${standardDeviation} #808080)`;
-        });
-        
-        
-        
-        // --- DATE ---
-        
-        const startYear = 2024;
-        const startPercentage = 0.13;
-        
-        const yearDisplay = document.getElementById('yearDisplay');
-        const monthDisplay = document.getElementById('monthDisplay');
-
-        // Custom for each year
-        const scrollPercentages = {
-            2024: 0.65,
-            2023: 0.35,
-            2022: 0.10,
-            2021: 0.10,
-            2020: 0.10,
-            2019: 0.10,
-            2018: 0.10,
-            // Max is at 133% 
-        };
-
-        const monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-
-        const totalYears = Object.keys(scrollPercentages).length;
-
-        function updateDate() {
-            const scrollY = window.scrollY;
-            const totalScrollHeight = document.body.scrollHeight - window.innerHeight;
-    
-            // Total page scrolled percentage
-            const scrollPercent = (scrollY / totalScrollHeight)+startPercentage;
-
-            let cumulativeScrollPercent = 0;
-            let currentYear = startYear;
-            let monthsPassed = 0;
-
-            // Year we're in based on scroll percentage
-            for (let year = startYear; year >= startYear - totalYears + 1; year--) {
-                const yearScrollPercent = scrollPercentages[year];
-                cumulativeScrollPercent += yearScrollPercent;
-
-            if (scrollPercent <= cumulativeScrollPercent) {
-                currentYear = year;
-
-                // Calculate how many months have passed in the current year
-                const yearScrollRange = yearScrollPercent;
-                const yearScrollStart = cumulativeScrollPercent - yearScrollRange;
-                const yearScrollProgress = (scrollPercent - yearScrollStart) / yearScrollRange;
-
-                // Convert the scroll progress to months (0 to 11, reversed)
-                monthsPassed = Math.floor((1 - yearScrollProgress) * 12);
-                break;
-            }
-            }
-
-        // Ensure monthsPassed wraps around within 0-11 range
-        monthsPassed = (monthsPassed + 12) % 12;
-
-        // Display the current year and month
-        yearDisplay.innerHTML = currentYear;
-        monthDisplay.innerHTML = monthNames[monthsPassed];
-        }
-
-        // Call updateDate on scroll
-        window.addEventListener('scroll', updateDate);
+    background-color: #0f0f0f; /*#0f0f0f*/
+    background-size: min(4vw, 4vh) min(4vh, 4vh);
+    background-position: center;
 
 
-        
-        
-        // --- SCROLLING ---
-        function setupMovementHandlers() {
-    let isDragging = false;
-    let startY, startX;
-    let scrollSpeedY = 0;
-    let scrollSpeedX = 0;
-    let targetScrollSpeedY = 0;
-    let targetScrollSpeedX = 0;
-    const acceleration = 0.05;
-    const deceleration = 0.95;
-
-    function startDrag(e) {
-        isDragging = true;
-        // Use clientY/clientX for mouse events, or changed touches[0] for touch events
-        startY = e.touches ? e.touches[0].clientY : e.clientY;
-        startX = e.touches ? e.touches[0].clientX : e.clientX;
-    }
-
-    function endDrag() {
-        isDragging = false;
-    }
-
-    function move(e) {
-        if (!isDragging) return;
-
-        const deltaY = startY - (e.touches ? e.touches[0].clientY : e.clientY);
-        const deltaX = startX - (e.touches ? e.touches[0].clientX : e.clientX);
-        startY = e.touches ? e.touches[0].clientY : e.clientY;
-        startX = e.touches ? e.touches[0].clientX : e.clientX;
-
-        targetScrollSpeedY = deltaY * 0.5;
-        targetScrollSpeedX = deltaX * 0.5;
-    }
-
-    function smoothScroll() {
-        if (isDragging) {
-            scrollSpeedY += (targetScrollSpeedY - scrollSpeedY) * acceleration;
-            scrollSpeedX += (targetScrollSpeedX - scrollSpeedX) * acceleration;
-            window.scrollBy(scrollSpeedX, scrollSpeedY);
-        } else {
-            scrollSpeedY *= deceleration;
-            scrollSpeedX *= deceleration;
-            window.scrollBy(scrollSpeedX, scrollSpeedY);
-        }
-        
-        requestAnimationFrame(smoothScroll);
-    }
-
-    // Mouse events
-    window.addEventListener('mousedown', startDrag);
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('mousemove', move);
-
-    // Touch events
-    window.addEventListener('touchstart', startDrag);
-    window.addEventListener('touchend', endDrag);
-    window.addEventListener('touchmove', move);
-
-    smoothScroll();
-    updateDate();
+    overflow: hidden;
+    user-select: none;
 }
-        
-        
-    </script>
-</body>
 
-</html>
+/* Disable all mouse events */
+.disabled {
+    pointer-events: none;
+}
+/* Background */
+.circle {
+    position: absolute;
+    z-index: -9;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 100, 0, 0);
+    background-image: radial-gradient(rgb(199, 199, 199) min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
+    background-size: min(4vw, 4vh) min(4vh, 4vh);
+    transform: scale(0.25);
+    animation-timeline: auto;
+    animation-range-start: normal;
+    animation-range-end: normal;
+    filter: drop-shadow(rgb(89, 89, 89) 0px 0px 0px);
+    background-position: center center;
+    animation: 2s ease 2s 1 normal forwards running zoomGrid;
+}
+
+/* --- LOADING SCREEN --- */
+#loading-screen {
+    position: fixed;
+    cursor: crosshair;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(15, 15, 15);
+    color: rgb(230, 230, 230);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    transition: opacity 1s ease-in-out;
+}
+
+#loading-screen.fade-out {
+    opacity: 0;
+}
+.loading-container {
+    text-align: center;
+    font-size: min(1.2vw, 1.2vh);
+}
+.loading-bar {
+    position: absolute;
+    justify-content: center;
+    align-self: flex-end;
+    width: min(20vw, 20vh);
+    height: min(0.2vw, 0.2vh);
+    background-color: rgb(31, 31, 31);
+    margin-bottom: min(13.33vw, 13.33vh);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+#loading-fill {
+    height: 100%;
+    width: 0px;
+    background-color: rgb(230, 230, 230);
+    transition: width 2s ease-in-out;
+}
+/* --- MAIN PAGE --- */
+
+/* Starting fade-in */
+#content{
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#content.fade-in{
+    opacity: 1;
+}
+/* Header */
+header {
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(255, 0, 0, 0);
+    position: absolute;
+    z-index: 9999;
+    display: none;
+
+}
+/* Date */
+.date-display {
+    
+}
+.date {
+    position: fixed;
+    top: min(2.7vw, 2.7vh);
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+.year {
+    font-size: min(3vw, 3vh);
+    font-weight: lighter;
+    color: rgb(204, 204, 204);
+}
+.month {
+    font-size: min(1.5vw, 1.5vh);
+    font-weight: lighter;
+    color: rgb(204, 204, 204);
+}
+
+/* Index */
+.pill-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0px;
+    list-style: none;
+}
+.pill {
+    color: rgb(230, 230, 230);
+    background-color: rgba(0, 0, 0, 0.5);
+    font-size: min(1.82vw, 1.82vh);
+    font-family: Helvetica, sans-serif;
+    cursor: pointer;
+    text-align: center;
+    max-width: min(13.97vw, 13.97vh);
+    padding: min(0.9vw, 0.9vh) min(1.8vw, 1.8vh);
+    border-width: min(0.21vw, 0.21vh);
+    border-style: solid;
+    border-color: rgb(87, 87, 87);
+    border-image: initial;
+    white-space: nowrap;
+    border-radius: 9999px;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+.pill:hover {
+    background-color: rgba(200, 200, 200, 0.15);
+    transform: scale(1.05);
+    border-color: white;
+    border-style: solid;
+}
+.pill-box li {
+    margin: 0px min(1.2vw, 1.2vh);
+}
+.pill1 {
+    order: 3;
+}
+.pill2 {
+    order: 4;
+}
+.pill3 {
+    order: 5;
+}
+.pill4 {
+    order: 2;
+}
+.pill5 {
+    order: 1;
+}
+
+.scrollable-content {
+    height: 400vh;
+    width: 110vw;
+    cursor: move;
+}
+
+.gradient-overlay {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    transform: scale(0.25);
+    box-shadow: 0 0 0 min(100vw, 100vh) #0f0f0f;
+    border-width: 0vh 0vw 0vh 0vw;
+    border-style: solid;
+    border-color: rgba(15, 15, 15, 1);
+    background: radial-gradient(rgba(15, 15, 15, 0) 0%, rgba(15, 15, 15, 1) 70%);
+    pointer-events: none;
+    z-index: 1000;
+    animation: zoomGrid 2s forwards 2s;
+}
+
+@keyframes zoomGrid {
+    from {
+        transform: scale(0.25);
+    }
+    to {
+        transform: scale(1);
+    }
