@@ -101,14 +101,19 @@
                     document.getElementById('content').classList.remove('hidden');
                     document.querySelector('header').style.display = 'block';
                     
-                    document.body.classList.add('zoom-effect');
                     
-                    const patternSize = document.getElementById('circle-pattern');
-                    patternSize.style.width = '110vw';  // Change width
-                    patternSize.style.height = '500vh';
                     
                 }, 1000);
             }, 2000);
+            
+            setTimeout(function () {
+                
+                const patternSize = document.getElementById('circle-pattern');
+                    patternSize.style.width = '110vw';  // Change width
+                    patternSize.style.height = '500vh'; //hay que poner 100 mas
+                    patternSize.style.left = '-5vw';
+                
+            }, 4000);
         };
         
        
