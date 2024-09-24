@@ -162,6 +162,7 @@ nav{
     margin: 0 min(1.2vw, 1.2vh);
     outline: none;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
@@ -209,12 +210,12 @@ nav{
     position: absolute;
     z-index: -9;
     top: 0;
-    left: 0;
+    left: 10vw;
     height: 100vh;
     width: 100vw;
     
     background-color: rgba(0, 100, 0, 0);
-    background-image: radial-gradient(#333333 min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
+    background-image: radial-gradient(black min(0.12vw, 0.12vh), transparent min(0.15vw, 0.15vh));
     background-size: min(4vw, 4vh) min(4vw, 4vh);
     
     transform: scale(0.25);
