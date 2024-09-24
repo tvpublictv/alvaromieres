@@ -5,25 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
     <title>Alvaro Mieres</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+    
     <!-- LOADING SCREEN -->
     <div id="loading-screen">
         <div class="loading-container">
             <h1>alvaro mieres</h1>
-        </div>
-        <div class="loading-bar">
+            <div class="loading-bar">
             <div class="loading-fill" id="loading-fill"></div>
+                
+        </div>
         </div>
     </div>
 
     
     <!-- MAIN PAGE -->
-    <div id="content" class="hidden">
-        
-        <div id="main" class="scrollable-content"></div>
+    <div id="content">
 
         <!-- Header -->
         <header>
@@ -35,20 +35,31 @@
             </div>
             
             <!-- Index -->
-            <ul class="pill-box">
-                <li class="pill pill1">architecture</li>
-                <li class="pill pill2">research</li>
-                <li class="pill pill3">other</li>
-                <li class="pill pill4">visual</li>
-                <li class="pill pill5">art</li>
-            </ul>
+            <nav class="navigation">
+                <ul class="pill-box">
+                    <li class="pill pill1">architecture</li>
+                    <li class="pill pill2">research</li>
+                    <li class="pill pill3">other</li>
+                    <li class="pill pill4">visual</li>
+                    <li class="pill pill5">art</li>
+            </ul></nav>
+        
+               
+            
         </header>
 
+        <!-- Elipse mask overlay -->
+        <div id="main" class="scrollable-content"></div>
+        
         <!-- Elipse mask overlay -->
         <div class="gradient-overlay"></div>
 
         <!-- Circle Pattern -->
         <div id="circle-pattern" class="circle disabled"></div>
+        
+        <!-- AYUDAS -->
+        <div class="verticalline"></div>
+        <div class="display"></div>
     </div>
 
     
@@ -73,8 +84,7 @@
         
         
         // --- ONLOAD ANIMATIONS
-        
-        let allowMovement= false;
+
         window.onload = function () {
             
             // Center the viewport horizontally
@@ -83,7 +93,9 @@
             
             animateLoadingBar();
             
-            main.classList.add('disabled')
+
+            
+
             
             //Loading screen Fade Out
             setTimeout(function () {
@@ -92,13 +104,13 @@
                 //Content Fade In
                 setTimeout(function () {
                     document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('content').classList.remove('hidden');
                     document.getElementById('content').classList.add('fade-in');
-                    document.querySelector('header').style.display = 'block';
+                    document.querySelector('header').style.display = 'flex';
 
                     
                 }, 1000);
             }, 2000);
+            
             
             setTimeout(function () {
                 
@@ -106,10 +118,7 @@
                     patternSize.style.width = '110vw';  // Change width
                     patternSize.style.height = '500vh'; //hay que poner 100 mas
                     patternSize.style.left = '-5vw';
-                
-                    main.classList.remove('disabled');
-                    
-                    allowMovement= true;
+
                     setupMovementHandlers();
 
             }, 4000);
@@ -282,27 +291,71 @@
     updateDate();
 }
         
-      
         
-        window.addEventListener('load', () => {
-            const pill1 = document.querySelector('.pill1');
-            const pillBox = document.querySelector('.pill-box');
-
+    // --- CENTER THE NAV ---   
+    const pill1 = document.querySelector('.pill1');
+    const pillBox = document.querySelector('.pill-box');
+    
+    function updateOffset() {
+        
             // Get the total width of the viewport
-            const totalWidth = pillBox.innerWidth;
+            const totalWidth = window.innerWidth;
 
             // Get the bounding rectangle of pill1
             const pill1Rect = pill1.getBoundingClientRect();
-            
+
             // Calculate the center of pill1
             const pill1Center = pill1Rect.left + (pill1Rect.width / 2);
 
             // Calculate the difference between center of viewport and center of pill1
-                const offset = (totalWidth / 2) - pill1Center;
+            const offset = (totalWidth / 2) - pill1Center;
+            
+            
+            pillBox.style.transform = `translateX(${offset}px)`;  
+    }
 
-            // Apply translation
-            pillBox.style.transform = `translateX(${-offset}px)`;
-            });
+
+    window.addEventListener('load', () => {
+        setTimeout(updateOffset, 0);
+    });
+
+      
+    
+        
+        
+const circleFish = document.querySelector('.circle');
+
+        // Add a mousemove event listener to apply fish-eye effect based on mouse position
+        document.addEventListener('mousemove', (event) => {
+            const mouseXFish = event.clientX;
+            const mouseYFish = event.clientY;
+
+            // Get the viewport dimensions
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            // Calculate distance from the cursor to the center of the viewport
+            const centerXFish = viewportWidth / 2;
+            const centerYFish = viewportHeight / 2;
+            const distanceXFish = Math.abs(centerXFish - mouseXFish);
+            const distanceYFish = Math.abs(centerYFish - mouseYFish);
+            
+            // Calculate a scaling factor based on distance from the center
+            const maxDistanceFish = Math.sqrt(Math.pow(centerXFish, 2) + Math.pow(centerYFish, 2));
+            const distanceFromCenterFish = Math.sqrt(Math.pow(distanceXFish, 2) + Math.pow(distanceYFish, 2));
+            
+            // Calculate the scale factor (closer to center = larger scale)
+            const scaleFactorFish = 1 + (1 - (distanceFromCenterFish / maxDistanceFish)) * 2; // Scale between 1x and 3x
+            
+            // Adjust background-size based on distance from center
+            const newBackgroundSizeFish = `min(${4 * scaleFactorFish}vw, ${4 * scaleFactorFish}vh)`;
+            circle.style.backgroundSizeFish = `${newBackgroundSizeFish} ${newBackgroundSizeFish}`;
+        });        
+        
+    // --- LOG ---
+    const Display = document.querySelector('.display');
+    Display.textContent = `${0}`;
+
     </script>
 </body>
 

@@ -19,30 +19,6 @@ body {
 }
 
 
-/* Background */
-.circle {
-    position: absolute;
-    z-index: -9;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100vw;
-    
-    background-color: rgba(0, 100, 0, 0);
-    background-image: radial-gradient(#383838 min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
-    background-size: min(4vw, 4vh) min(4vw, 4vh);
-    
-    transform: scale(0.25);
-    animation-timeline: auto;
-    animation-range-start: normal;
-    animation-range-end: normal;
-    animation: 2s ease 2s 1 normal forwards running zoomGrid;
-    
-    filter: drop-shadow(#a6a6a6 0px 0px 0px);
-    background-position: center center;
-    
-}
-
 /* --- LOADING SCREEN --- */
 #loading-screen {
     position: fixed;
@@ -64,12 +40,15 @@ body {
     opacity: 0;
 }
 .loading-container {
+    
     text-align: center;
     font-size: min(1.2vw, 1.2vh);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 .loading-bar {
-    position: fixed;
-    align-self: flex-end;
     width: min(20vw, 20vh);
     height: max(1px, min(0.2vw, 0.2vh));
     background-color: #e0e0e0;
@@ -95,20 +74,20 @@ body {
 #content.fade-in{
     opacity: 1;
 }
-/* Header */
+
+
+/* --- HEADER --- */
+
 header {
     height: 100vh;
     width: 100vw;
-    background-color: rgba(255, 0, 0, 0);
-    position: absolute;
+    top: 0;
+    position: fixed;
     z-index: 9999;
-    display: none;
+    justify-content: center;
 
 }
 /* Date */
-.date-display {
-    
-}
 .date {
     position: fixed;
     top: min(2.7vw, 2.7vh);
@@ -127,17 +106,30 @@ header {
     color: #191919;
 }
 
+
 /* Index */
-.pill-box {
-    display: flex;
-    justify-content: center; /* Center content horizontally */
-    align-items: center;
+nav{
     position: fixed;
-    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 0px;
+    bottom: 0;
+    height: 10vh;
+    width: 100vw;
+}
+.pill-box {
+    display: flex;
+    position:fixed;
+    align-items: center;
+    justify-content: center;
     list-style: none;
+    width: 50vw;
+    padding: 0;
+    margin: 0;
+    z-index:120000;
+    
 }
 
 .pill {
@@ -146,8 +138,7 @@ header {
     font-size: min(1.82vw, 1.82vh);
     font-family: Helvetica, sans-serif;
     cursor: pointer;
-
-    max-width: min(13.97vw, 13.97vh);
+    
     padding: min(0.9vw, 0.9vh) min(1.8vw, 1.8vh);
     border-width: min(0.21vw, 0.21vh);
     border-style: solid;
@@ -164,28 +155,55 @@ header {
 
 .pill-box li {
     margin: 0 min(1.2vw, 1.2vh);
+    outline: none;
 }
 
-/* Center pill1 and position pills around it */
 .pill1 {
-    order: 0; /* Center pill1 */
+    order: 0;
 }
 
 .pill2, .pill3 {
-    order: 1; /* To the right of pill1 */
+    order: 1;
 }
 
 .pill4, .pill5 {
-    order: -1; /* To the left of pill1 */
+    order: -1;
+}
+
+.offset-display {
+    position: fixed; /* or absolute, depending on your layout */
+    top: 10px; /* adjust as needed */
+    left: 10px; /* adjust as needed */
+    background-color: rgba(0, 0, 0, 1); /* semi-transparent background */
+    color: white;
+    font-size: 30px;
+    padding: 5px 10px;
+    border: 1px solid #000;
+    z-index: 1000; /* ensure it's on top */
+}
+.display {
+    position: fixed; /* or absolute, depending on your layout */
+    top: 50px; /* adjust as needed */
+    left: 10px; /* adjust as needed */
+    background-color: rgba(0, 0, 0, 1); /* semi-transparent background */
+    color: white;
+    font-size: 30px;
+    padding: 5px 10px;
+    border: 1px solid #000;
+    z-index: 1000; /* ensure it's on top */
 }
 
 
+
+
+/* Scrollable content */
 .scrollable-content {
     height: 400vh;
     width: 110vw;
     cursor: move;
 }
 
+/* Elipse overlay */
 .gradient-overlay {
     position: fixed;
     height: 100vh;
@@ -203,6 +221,40 @@ header {
     animation: zoomGrid 2s forwards 2s;
 }
 
+
+/* Background */
+.circle {
+    position: absolute;
+    z-index: -9;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    
+    background-color: rgba(0, 100, 0, 0);
+    background-image: radial-gradient(#383838 min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
+    background-size: min(4vw, 4vh) min(4vw, 4vh);
+    
+    transform: scale(0.25);
+    animation-timeline: auto;
+    animation-range-start: normal;
+    animation-range-end: normal;
+    animation: 2s ease 2s 1 normal forwards running zoomGrid;
+    
+    filter: drop-shadow(#a6a6a6 0px 0px 0px);
+    background-position: center center;
+    
+}
+
+.verticalline {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100vh;
+    background-color: red; /* Change the color if needed */
+    z-index: 11003; /* Make sure it is on top of everything */
+}
 @keyframes zoomGrid { 
     from {
         transform: scale(0.25);
@@ -210,3 +262,5 @@ header {
     to {
         transform: scale(1);
     }
+    
+    
