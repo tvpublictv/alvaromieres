@@ -37,11 +37,11 @@
             <!-- Index -->
             <nav class="navigation">
                 <ul class="pill-box">
-                    <li class="pill pill1">architecture</li>
-                    <li class="pill pill2">research</li>
-                    <li class="pill pill3">other</li>
-                    <li class="pill pill4">visual</li>
-                    <li class="pill pill5">art</li>
+                    <li class="pill pill1">Architecture</li>
+                    <li class="pill pill2">Research</li>
+                    <li class="pill pill3">Other</li>
+                    <li class="pill pill4">Art</li>
+                    <li class="pill pill5">Visual</li>
             </ul></nav>
         
                
@@ -115,7 +115,7 @@
             setTimeout(function () {
                 
                 const patternSize = document.getElementById('circle-pattern');
-                    patternSize.style.width = '110vw';  // Change width
+                    patternSize.style.width = '120vw';  // Change width
                     patternSize.style.height = '500vh'; //hay que poner 100 mas
                     patternSize.style.left = '-5vw';
 
@@ -132,14 +132,16 @@
 
         
         
-        // --- GRID SHADOW
+        // --- GRID SHADOW ---
         const sizeFactor = 5;
-        
         const circle = document.querySelector('.circle');
-        document.addEventListener('mousemove', (event) => {
-            const mouseX = event.clientX;
-            const mouseY = event.clientY;
+        let isTouching = false; // Track whether there is a touch input
+        let shadowX = 0; // X offset for shadow
+        let shadowY = 0; // Y offset for shadow
+        const returnSpeed = 0.1; // Speed at which the shadow returns to center
 
+        // Function to update shadow position based on mouse or touch input
+        function updateShadow(mouseX, mouseY) {
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
 
@@ -149,12 +151,66 @@
             const offset = `min(0.2vw, 0.2vh)`;
             const shadowOffsetX = `calc(${offset} * ${deltaX * sizeFactor})`;
             const shadowOffsetY = `calc(${offset} * ${deltaY * sizeFactor})`;
-            
+
             const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
             const standardDeviation = `calc(${offset} * ${distance * 1.66})`; // Scale the distance as needed
 
             circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} ${standardDeviation} #7f7f7f)`;
+        }
+
+        // Function to animate shadow returning to center
+        function animateReturnToCenter() {
+            if (!isTouching) {
+                // Smoothly return shadow to center
+                shadowX *= (1 - returnSpeed);
+                shadowY *= (1 - returnSpeed);
+
+                const offset = `min(0.2vw, 0.2vh)`;
+                const shadowOffsetX = `calc(${offset} * ${shadowX * sizeFactor})`;
+                const shadowOffsetY = `calc(${offset} * ${shadowY * sizeFactor})`;
+
+                circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} 0 #7f7f7f)`; // Set shadow size to 0 for center
+
+                // Continue animation until shadow is close enough to center
+                if (Math.abs(shadowX) > 0.01 || Math.abs(shadowY) > 0.01) {
+                    requestAnimationFrame(animateReturnToCenter);
+                }
+            }
+        }
+
+        // Mouse events for moving the shadow
+        document.addEventListener('mousemove', (event) => {
+            isTouching = false; // Mouse interaction
+            updateShadow(event.clientX, event.clientY);
         });
+
+        // Touch events for moving the shadow
+        document.addEventListener('touchstart', (event) => {
+            isTouching = true; // Set to true when touching
+            const touchX = event.touches[0].clientX;
+            const touchY = event.touches[0].clientY;
+            shadowX = -(touchX - (window.innerWidth / 2)) / window.innerWidth;
+            shadowY = -(touchY - (window.innerHeight / 2)) / window.innerHeight;
+            updateShadow(touchX, touchY);
+        });
+
+        document.addEventListener('touchmove', (event) => {
+            if (isTouching) {
+                const touchX = event.touches[0].clientX;
+                const touchY = event.touches[0].clientY;
+                shadowX = -(touchX - (window.innerWidth / 2)) / window.innerWidth;
+                shadowY = -(touchY - (window.innerHeight / 2)) / window.innerHeight;
+                updateShadow(touchX, touchY);
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isTouching = false; // Touch ended
+            animateReturnToCenter(); // Start animation to return shadow to center
+        });
+
+        // Initialize shadow to center on page load
+        animateReturnToCenter();
         
         
         
@@ -231,72 +287,131 @@
         
         // --- SCROLLING ---
         function setupMovementHandlers() {
-    let isDragging = false;
-    let startY, startX;
-    let scrollSpeedY = 0;
-    let scrollSpeedX = 0;
-    let targetScrollSpeedY = 0;
-    let targetScrollSpeedX = 0;
-    const acceleration = 0.05;
-    const deceleration = 0.95;
+            let isDragging = false;
+            let startY, startX;
+            let scrollSpeedY = 0;
+            let scrollSpeedX = 0;
+            let targetScrollSpeedY = 0;
+            let targetScrollSpeedX = 0;
+            const acceleration = 0.02;
+            const deceleration = 0.95; // Standard deceleration
+            const edgeDeceleration = 0.95; // Stronger deceleration when at edges
+            const minDeceleration = 0.01; // Minimum speed before clamping to zero
 
-    function startDrag(e) {
-        isDragging = true;
-        // Use clientY/clientX for mouse events, or changed touches[0] for touch events
-        startY = e.touches ? e.touches[0].clientY : e.clientY;
-        startX = e.touches ? e.touches[0].clientX : e.clientX;
-    }
+            // Define maximum scrolling speed based on the minimum of 5vw and 5vh
+            const maxScrollSpeed = Math.min(5 * window.innerWidth / 100, 5 * window.innerHeight / 100); // Max scrolling speed in pixels
 
-    function endDrag() {
-        isDragging = false;
-    }
+            // Define different thresholds for early deceleration
+            const topThreshold = 20 * (window.innerHeight / 100);   
+            const bottomThreshold = -80 * (window.innerHeight / 100); // -100 would be 0
+            const sideThreshold = 15 * (window.innerWidth / 100);
 
-    function move(e) {
-        if (!isDragging) return;
+            function startDrag(e) {
+                isDragging = true;
+                // Use clientY/clientX for mouse events, or changed touches[0] for touch events
+                startY = e.touches ? e.touches[0].clientY : e.clientY;
+                startX = e.touches ? e.touches[0].clientX : e.clientX;
+            }
 
-        const deltaY = startY - (e.touches ? e.touches[0].clientY : e.clientY);
-        const deltaX = startX - (e.touches ? e.touches[0].clientX : e.clientX);
-        startY = e.touches ? e.touches[0].clientY : e.clientY;
-        startX = e.touches ? e.touches[0].clientX : e.clientX;
+            function endDrag() {
+                isDragging = false;
+            }
 
-        targetScrollSpeedY = deltaY * 0.5;
-        targetScrollSpeedX = deltaX * 0.5;
-    }
+            function move(e) {
+                if (!isDragging) return;
 
-    function smoothScroll() {
-        if (isDragging) {
-            scrollSpeedY += (targetScrollSpeedY - scrollSpeedY) * acceleration;
-            scrollSpeedX += (targetScrollSpeedX - scrollSpeedX) * acceleration;
-            window.scrollBy(scrollSpeedX, scrollSpeedY);
-        } else {
-            scrollSpeedY *= deceleration;
-            scrollSpeedX *= deceleration;
-            window.scrollBy(scrollSpeedX, scrollSpeedY);
+                const deltaY = startY - (e.touches ? e.touches[0].clientY : e.clientY);
+                const deltaX = startX - (e.touches ? e.touches[0].clientX : e.clientX);
+                startY = e.touches ? e.touches[0].clientY : e.clientY;
+                startX = e.touches ? e.touches[0].clientX : e.clientX;
+
+                // Apply the vertical speed factor to increase Y speed
+                targetScrollSpeedY = deltaY * 1;
+                targetScrollSpeedX = deltaX * 1;
+            }
+
+            function smoothScroll() {
+                // Check current scroll positions
+                const scrollTop = window.scrollY;
+                const scrollLeft = window.scrollX;
+                const windowHeight = window.innerHeight;
+                const windowWidth = window.innerWidth;
+                const documentHeight = document.body.scrollHeight;
+                const documentWidth = document.body.scrollWidth;
+
+                // Implement early deceleration when approaching the edges with different thresholds
+                if (scrollTop <= topThreshold && scrollSpeedY < 0) {
+                    scrollSpeedY *= 0.7; // Stronger deceleration when scrolling up close to the top
+                }
+                if (scrollTop + windowHeight >= documentHeight - bottomThreshold && scrollSpeedY > 0) {
+                    scrollSpeedY *= 0.7; // Stronger deceleration when scrolling down close to the bottom
+                }
+                if (scrollLeft <= sideThreshold && scrollSpeedX < 0) {
+                    scrollSpeedX *= 0.7; // Stronger deceleration when scrolling left close to the left edge
+                }
+                if (scrollLeft + windowWidth >= documentWidth - sideThreshold && scrollSpeedX > 0) {
+                    scrollSpeedX *= 0.7; // Stronger deceleration when scrolling right close to the right edge
+                }
+
+                // Apply faster vertical speed reduction when near the left or right edges
+                if (scrollLeft <= sideThreshold || scrollLeft + windowWidth >= documentWidth - sideThreshold) {
+                    scrollSpeedY *= edgeDeceleration; // Apply stronger deceleration to vertical speed
+                }
+
+                if (isDragging) {
+                    scrollSpeedY += (targetScrollSpeedY - scrollSpeedY) * acceleration;
+                    scrollSpeedX += (targetScrollSpeedX - scrollSpeedX) * acceleration;
+
+                    // Clamp the scrolling speed to the maximum value
+                    scrollSpeedY = Math.max(Math.min(scrollSpeedY, maxScrollSpeed), -maxScrollSpeed);
+                    scrollSpeedX = Math.max(Math.min(scrollSpeedX, maxScrollSpeed), -maxScrollSpeed);
+
+                    window.scrollBy(scrollSpeedX, scrollSpeedY);
+                } else {
+                    // Apply deceleration when not dragging
+                    scrollSpeedY *= deceleration;
+                    scrollSpeedX *= deceleration;
+
+                    // Ensure speeds approach zero more effectively
+                    if (Math.abs(scrollSpeedY) < minDeceleration) scrollSpeedY = 0;
+                    if (Math.abs(scrollSpeedX) < minDeceleration) scrollSpeedX = 0;
+
+                    // Clamp the scrolling speed to the maximum value
+                    scrollSpeedY = Math.max(Math.min(scrollSpeedY, maxScrollSpeed), -maxScrollSpeed);
+                    scrollSpeedX = Math.max(Math.min(scrollSpeedX, maxScrollSpeed), -maxScrollSpeed);
+
+                    window.scrollBy(scrollSpeedX, scrollSpeedY);
+                }
+
+                requestAnimationFrame(smoothScroll);
+            }
+
+            // Mouse events
+            window.addEventListener('mousedown', startDrag);
+            window.addEventListener('mouseup', endDrag);
+            window.addEventListener('mousemove', move);
+
+            // Touch events
+            window.addEventListener('touchstart', startDrag);
+            window.addEventListener('touchend', endDrag);
+            window.addEventListener('touchmove', move);
+
+            smoothScroll();
         }
-        
-        requestAnimationFrame(smoothScroll);
-    }
 
-    // Mouse events
-    window.addEventListener('mousedown', startDrag);
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('mousemove', move);
+        // Call the function to set up event handlers
+        setupMovementHandlers();
 
-    // Touch events
-    window.addEventListener('touchstart', startDrag);
-    window.addEventListener('touchend', endDrag);
-    window.addEventListener('touchmove', move);
 
-    smoothScroll();
-    updateDate();
-}
         
         
-    // --- CENTER THE NAV ---   
-    const pill1 = document.querySelector('.pill1');
-    const pillBox = document.querySelector('.pill-box');
+        
+        
+        // --- CENTER THE NAV ---   
+        const pill1 = document.querySelector('.pill1');
+        const pillBox = document.querySelector('.pill-box');
     
-    function updateOffset() {
+        function updateOffset() {
         
             // Get the total width of the viewport
             const totalWidth = window.innerWidth;
@@ -314,16 +429,15 @@
             pillBox.style.transform = `translateX(${offset}px)`;  
     }
 
-
-    window.addEventListener('load', () => {
+        window.addEventListener('load', () => {
         setTimeout(updateOffset, 0);
     });
 
       
     
         
-        
-const circleFish = document.querySelector('.circle');
+         // --- FISHEYE ---    
+        const circleFish = document.querySelector('.circle');
 
         // Add a mousemove event listener to apply fish-eye effect based on mouse position
         document.addEventListener('mousemove', (event) => {
@@ -352,9 +466,11 @@ const circleFish = document.querySelector('.circle');
             circle.style.backgroundSizeFish = `${newBackgroundSizeFish} ${newBackgroundSizeFish}`;
         });        
         
-    // --- LOG ---
-    const Display = document.querySelector('.display');
-    Display.textContent = `${0}`;
+        
+        
+        // --- LOG ---
+        const Display = document.querySelector('.display');
+        Display.textContent = `${0}`;
 
     </script>
 </body>

@@ -2,7 +2,7 @@ body {
     font-family: Helvetica, sans-serif;
     margin: 0; 
     height: 400vh;
-    width: 110vw;
+    width: 120vw;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -27,8 +27,8 @@ body {
     left: 0px;
     width: 100vw;
     height: 100vh;
-    background-color: #f0f0f0;
-    color: #191919;
+    background-color: #0f0f0f;
+    color: #e6e6e6;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -39,6 +39,7 @@ body {
 #loading-screen.fade-out {
     opacity: 0;
 }
+
 .loading-container {
     
     text-align: center;
@@ -49,17 +50,18 @@ body {
     align-items: center;
 }
 .loading-bar {
+    position: fixed;
     width: min(20vw, 20vh);
     height: max(1px, min(0.2vw, 0.2vh));
-    background-color: #e0e0e0;
-    margin-bottom: min(13.33vw, 13.33vh);
+    background-color: #1f1f1f;
+    bottom: min(13.33vw, 13.33vh);
     border-radius: 9999px;
     overflow: hidden;
 }
 #loading-fill {
     height: 100%;
     width: 0px;
-    background-color: #191919;
+    background-color: #e6e6e6;
     transition: width 2s ease-in-out;
 }
 
@@ -90,19 +92,19 @@ header {
 /* Date */
 .date {
     position: fixed;
-    top: min(2.7vw, 2.7vh);
+    top: min(1.5vw, 1.5vh);
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
 }
 .year {
     font-size: min(3vw, 3vh);
-    font-weight: lighter;
+    font-weight: bold;
     color: #191919;
 }
 .month {
     font-size: min(1.5vw, 1.5vh);
-    font-weight: lighter;
+    font-weight: bold;
     color: #191919;
 }
 
@@ -119,6 +121,7 @@ nav{
     height: 10vh;
     width: 100vw;
 }
+
 .pill-box {
     display: flex;
     position:fixed;
@@ -136,6 +139,7 @@ nav{
     color: #191919;
     background-color: rgba(255, 255, 255, 0.5);
     font-size: min(1.82vw, 1.82vh);
+    font-weight: bold;
     font-family: Helvetica, sans-serif;
     cursor: pointer;
     
@@ -144,18 +148,21 @@ nav{
     border-style: solid;
     border-color: #a8a8a8;
     border-radius: 9999px;
-    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, border 0.3s ease-in-out;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, border 0.3s ease-in-out, color 0.3s ease;
 }
 
 .pill:hover {
-    background-color: rgba(255, 255, 255, 1);
+    background-color: rgba(25, 25, 25, 0.95);
     transform: scale(1.05);
     border-color: black;
+    color: white;
 }
 
 .pill-box li {
     margin: 0 min(1.2vw, 1.2vh);
     outline: none;
+    user-select: none;
+    touch-action: manipulation;
 }
 
 .pill1 {
@@ -170,36 +177,11 @@ nav{
     order: -1;
 }
 
-.offset-display {
-    position: fixed; /* or absolute, depending on your layout */
-    top: 10px; /* adjust as needed */
-    left: 10px; /* adjust as needed */
-    background-color: rgba(0, 0, 0, 1); /* semi-transparent background */
-    color: white;
-    font-size: 30px;
-    padding: 5px 10px;
-    border: 1px solid #000;
-    z-index: 1000; /* ensure it's on top */
-}
-.display {
-    position: fixed; /* or absolute, depending on your layout */
-    top: 50px; /* adjust as needed */
-    left: 10px; /* adjust as needed */
-    background-color: rgba(0, 0, 0, 1); /* semi-transparent background */
-    color: white;
-    font-size: 30px;
-    padding: 5px 10px;
-    border: 1px solid #000;
-    z-index: 1000; /* ensure it's on top */
-}
-
-
-
 
 /* Scrollable content */
 .scrollable-content {
     height: 400vh;
-    width: 110vw;
+    width: 120vw;
     cursor: move;
 }
 
@@ -232,7 +214,7 @@ nav{
     width: 100vw;
     
     background-color: rgba(0, 100, 0, 0);
-    background-image: radial-gradient(#383838 min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
+    background-image: radial-gradient(#333333 min(0.1vw, 0.1vh), transparent min(0.15vw, 0.15vh));
     background-size: min(4vw, 4vh) min(4vw, 4vh);
     
     transform: scale(0.25);
@@ -246,15 +228,7 @@ nav{
     
 }
 
-.verticalline {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    width: 1px;
-    height: 100vh;
-    background-color: red; /* Change the color if needed */
-    z-index: 11003; /* Make sure it is on top of everything */
-}
+
 @keyframes zoomGrid { 
     from {
         transform: scale(0.25);
@@ -263,4 +237,30 @@ nav{
         transform: scale(1);
     }
     
+    
+    
+    .verticalline {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100vh;
+    background-color: red; /* Change the color if needed */
+    z-index: 11003; /* Make sure it is on top of everything */
+    visibility: hidden;
+}
+    
+    .display {
+    position: fixed; /* or absolute, depending on your layout */
+    top: 50px; /* adjust as needed */
+    left: 10px; /* adjust as needed */
+    background-color: rgba(0, 0, 0, 1); /* semi-transparent background */
+    color: white;
+    font-size: 30px;
+    padding: 5px 10px;
+    border: 1px solid #000;
+    z-index: 1000; /* ensure it's on top */
+    visibility: hidden;
+}
+
     
