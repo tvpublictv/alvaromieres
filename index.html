@@ -48,14 +48,13 @@
             
         </header>
 
-        <!-- Elipse mask overlay -->
-        <div class="scrollable-content"></div>
         
         <!-- Elipse mask overlay -->
         <div class="gradient-overlay"></div>
 
         <!-- Circle Pattern -->
         <div id="circle-pattern" class="circle disabled"></div>
+        <div class="background"></div>
         
         <!-- AYUDAS -->
         <div class="verticalline"></div>
@@ -67,6 +66,13 @@
     <!-- SCRIPTS -->
     
     <script>
+        
+        
+        // Disable the right-click Context menu
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+        
         
         
         
@@ -92,9 +98,6 @@
             window.scrollTo(centerX, 0);
             
             animateLoadingBar();
-            
-
-            
 
             
             //Loading screen Fade Out
@@ -108,8 +111,8 @@
                     document.querySelector('header').style.display = 'flex';
 
                     
-                }, 1000);
-            }, 2000);
+                }, 500);
+            }, 2500);
             
             
             setTimeout(function () {
@@ -117,12 +120,10 @@
                 const patternSize = document.getElementById('circle-pattern');
                     patternSize.style.width = '120vw';  // Change width
                     patternSize.style.height = '500vh'; //hay que poner 100 mas
-                const arreglo = -10 * (window.innerWidth / 100);
-                    patternSize.style.left = arreglo + 'px';
 
-                    setupMovementHandlers();
+                    setTimeout(setupMovementHandlers, 0)
 
-            }, 4000);
+            }, 4500);
         };
          
         // Reset scroll position before the page is unloaded (for refresh)
@@ -215,6 +216,7 @@
         
         
         
+        
         // --- DATE ---
         
         const startYear = 2024;
@@ -294,22 +296,22 @@
             let scrollSpeedX = 0;
             let targetScrollSpeedY = 0;
             let targetScrollSpeedX = 0;
-            const acceleration = 0.01;
-            const deceleration = 0.99; // Standard deceleration
+            const acceleration = 0.15;
+            const deceleration = 0.98; 
             const edgeDeceleration = 0.97; // Stronger deceleration when at edges
-            const minDeceleration = 0.01; // Minimum speed before clamping to zero
+            const minDeceleration = 0.2; // Minimum speed before clamping to zero
 
-            // Define maximum scrolling speed based on the minimum of 5vw and 5vh
-            const maxScrollSpeed = Math.min(5 * window.innerWidth / 100, 5 * window.innerHeight / 100); // Max scrolling speed in pixels
+            // Maximum scrolling speed
+            const maxScrollSpeed = Math.min(window.innerWidth / 75,window.innerHeight / 75); // Max scrolling speed in pixels
 
-            // Define different thresholds for early deceleration
-            const topThreshold = 20 * (window.innerHeight / 100);   
+            // Thresholds for early deceleration
+            const topThreshold = 0 * (window.innerHeight / 100);   
             const bottomThreshold = -80 * (window.innerHeight / 100); // -100 would be 0
             const sideThreshold = 15 * (window.innerWidth / 100);
 
             function startDrag(e) {
                 isDragging = true;
-                // Use clientY/clientX for mouse events, or changed touches[0] for touch events
+                
                 startY = e.touches ? e.touches[0].clientY : e.clientY;
                 startX = e.touches ? e.touches[0].clientX : e.clientX;
             }
@@ -326,9 +328,9 @@
                 startY = e.touches ? e.touches[0].clientY : e.clientY;
                 startX = e.touches ? e.touches[0].clientX : e.clientX;
 
-                // Apply the vertical speed factor to increase Y speed
-                targetScrollSpeedY = deltaY * 1;
-                targetScrollSpeedX = deltaX * 1;
+                // Speed factors 
+                targetScrollSpeedY = deltaY * 3.6;
+                targetScrollSpeedX = deltaX * 3.6;
             }
 
             function smoothScroll() {
@@ -340,23 +342,23 @@
                 const documentHeight = document.body.scrollHeight;
                 const documentWidth = document.body.scrollWidth;
 
-                // Implement early deceleration when approaching the edges with different thresholds
+                // Implement early deceleration when approaching the edges
                 if (scrollTop <= topThreshold && scrollSpeedY < 0) {
-                    scrollSpeedY *= 0.7; // Stronger deceleration when scrolling up close to the top
+                    scrollSpeedY *= 0.9; // Top
                 }
                 if (scrollTop + windowHeight >= documentHeight - bottomThreshold && scrollSpeedY > 0) {
-                    scrollSpeedY *= 0.7; // Stronger deceleration when scrolling down close to the bottom
+                    scrollSpeedY *= 0.7; // Bottom
                 }
                 if (scrollLeft <= sideThreshold && scrollSpeedX < 0) {
-                    scrollSpeedX *= 0.7; // Stronger deceleration when scrolling left close to the left edge
+                    scrollSpeedX *= 0.7; // Left edge
                 }
                 if (scrollLeft + windowWidth >= documentWidth - sideThreshold && scrollSpeedX > 0) {
-                    scrollSpeedX *= 0.7; // Stronger deceleration when scrolling right close to the right edge
+                    scrollSpeedX *= 0.7; // Right edge
                 }
 
-                // Apply faster vertical speed reduction when near the left or right edges
+                // Stronger deceleration to vertical speed
                 if (scrollLeft <= sideThreshold || scrollLeft + windowWidth >= documentWidth - sideThreshold) {
-                    scrollSpeedY *= edgeDeceleration; // Apply stronger deceleration to vertical speed
+                    scrollSpeedY *= edgeDeceleration; 
                 }
 
                 if (isDragging) {
@@ -399,11 +401,6 @@
 
             smoothScroll();
         }
-
-        // Call the function to set up event handlers
-        setupMovementHandlers();
-
-
         
         
         
@@ -471,7 +468,7 @@
         
         // --- LOG ---
         const Display = document.querySelector('.display');
-        Display.textContent = `${0}`;
+        Display.textContent = ``;
 
     </script>
 </body>
