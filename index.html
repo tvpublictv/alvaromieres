@@ -48,17 +48,24 @@
             
         </header>
 
-        
-        <!-- Elipse mask overlay -->
+        <!-- Header -->
+        <!-- Overlays -->
         <div class="gradient-overlay"></div>
+        <div class="background-color"></div>
 
         <!-- Circle Pattern -->
-        <div id="circle-pattern" class="circle disabled"></div>
-        <div class="background"></div>
+        <div id="background" class="background disabled">
+            
+        <div id="card" class="card" style="top: 550vh; left: 170vw;"></div>
+    
+        
+        
+        </div>
+        
+        
         
         <!-- AYUDAS -->
-        <div class="verticalline"></div>
-        <div class="display"></div>
+        <div id="vertical-line" class="verticalline"></div>
     </div>
 
     
@@ -72,7 +79,10 @@
         document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
-        
+        // Remove scroll cache
+        if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+        }
         
         
         
@@ -93,9 +103,8 @@
 
         window.onload = function () {
             
-            // Center the viewport horizontally
-            const centerX = (document.body.scrollWidth - window.innerWidth) / 2;
-            window.scrollTo(centerX, 0);
+            
+            
             
             animateLoadingBar();
 
@@ -108,35 +117,133 @@
                 setTimeout(function () {
                     document.getElementById('loading-screen').style.display = 'none';
                     document.getElementById('content').classList.add('fade-in');
-                    document.querySelector('header').style.display = 'flex';
 
                     
-                }, 500);
+                }, 1000);
             }, 2500);
             
             
             setTimeout(function () {
                 
-                const patternSize = document.getElementById('circle-pattern');
-                    patternSize.style.width = '120vw';  // Change width
-                    patternSize.style.height = '500vh'; //hay que poner 100 mas
-
-                    setTimeout(setupMovementHandlers, 0)
+                const patternSize = document.getElementById('background');
+                    //patternSize.style.width = '120vw';  // Change width
+                    //patternSize.style.height = '900vh'; //hay que poner 100 mas
 
             }, 4500);
         };
          
-        // Reset scroll position before the page is unloaded (for refresh)
-        window.onbeforeunload = function() {
-            const centerX = (document.body.scrollWidth - window.innerWidth) / 2;
-            window.scrollTo(centerX, 0);
+
+        
+        // --- SCROLL
+        
+        const draggableContent = document.getElementById('background');
+        let scrollMouseX = 0;
+        let scrollMouseY = 0;
+
+        let draggableContentX = 0;
+        let draggableContentY = 0;
+
+        let offsetX = 0;
+        let offsetY = 0;
+
+        const scrollDelay = 0.05;
+        let isScrolling = false;
+
+        let animationFrameId = null;
+
+
+        // Get the current transform translate values
+        function getTranslateValues(element) {
+            const style = window.getComputedStyle(element);
+            const matrix = new WebKitCSSMatrix(style.transform);
+            return {
+                x: matrix.m41,
+                y: matrix.m42
+            };
         }
 
+        // Start scrolling
+        draggableContent.addEventListener('mousedown', (event) => {
+            isScrolling = true;
+
+            // Capture the initial mouse positions
+            scrollMouseX = event.clientX;
+            scrollMouseY = event.clientY;
+
+            // Get current translate values of the draggable content
+            const translate = getTranslateValues(draggableContent);
+            draggableContentX = translate.x;
+            draggableContentY = translate.y;
+
+            // Calculate offsets relative to the current mouse position
+            offsetX = event.clientX - draggableContentX;
+            offsetY = event.clientY - draggableContentY;
+
+            // Prevent default behavior (like text selection)
+            event.preventDefault();
+            event.stopPropagation();
+
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+            // Start the animation loop
+            requestAnimationFrame(scroll);
+        });
+
+        // Track mouse movement
+        document.addEventListener('mousemove', (event) => {
+            if (isScrolling) {
+                scrollMouseX = event.clientX;
+                scrollMouseY = event.clientY;
+            }
+        });
+
+        // Stop scrolling
+        document.addEventListener('mouseup', () => {
+            isScrolling = false;
+        });
+
+        // Smoothly move the draggable content
+        function scroll() {
+            if (isScrolling) {
+                // Calculate new positions based on mouse movement
+                draggableContentX += (scrollMouseX - draggableContentX - offsetX) * scrollDelay;
+                draggableContentY += (scrollMouseY - draggableContentY - offsetY) * scrollDelay;       
+            } else {
+                // Calculate new positions based on mouse movement
+                draggableContentX += (scrollMouseX - draggableContentX - offsetX) * scrollDelay;
+                draggableContentY += (scrollMouseY - draggableContentY - offsetY) * scrollDelay;       
+            }
+            
+            // Define boundaries in vw and vh
+            const minX = -0.2 * window.innerWidth;
+            const maxX = 0.2 * window.innerWidth;  
+            const minY = -3 * window.innerHeight;
+            const maxY = 3 * window.innerHeight; 
+            
+            // Clamp the draggable content position within defined boundaries
+            draggableContentX = Math.max(minX, Math.min(maxX, draggableContentX));
+            draggableContentY = Math.max(minY, Math.min(maxY, draggableContentY));
+
+            // Set draggable content position using translate
+            draggableContent.style.transform = `translate(${draggableContentX}px, ${draggableContentY}px)`;
+
+            // Continue the animation loop only if still moving
+            if (isScrolling || Math.abs(scrollMouseX - draggableContentX - offsetX) > 10 || Math.abs(scrollMouseY - draggableContentY - offsetY) > 10) {
+                animationFrameId = requestAnimationFrame(scroll);
+            } else {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
+        
+    
+          
         
         
         // --- GRID SHADOW ---
         const sizeFactor = 5;
-        const circle = document.querySelector('.circle');
+        const circleShadow = document.querySelector('.background');
         let isTouching = false; // Track whether there is a touch input
         let shadowX = 0; // X offset for shadow
         let shadowY = 0; // Y offset for shadow
@@ -157,7 +264,7 @@
             const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
             const standardDeviation = `calc(${offset} * ${distance * 1.66})`; // Scale the distance as needed
 
-            circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} ${standardDeviation} #7f7f7f)`;
+            circleShadow.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} ${standardDeviation} #7f7f7f)`;
         }
 
         // Function to animate shadow returning to center
@@ -171,7 +278,7 @@
                 const shadowOffsetX = `calc(${offset} * ${shadowX * sizeFactor})`;
                 const shadowOffsetY = `calc(${offset} * ${shadowY * sizeFactor})`;
 
-                circle.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} 0 #7f7f7f)`; // Set shadow size to 0 for center
+                circleShadow.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} 0 #7f7f7f)`; // Set shadow size to 0 for center
 
                 // Continue animation until shadow is close enough to center
                 if (Math.abs(shadowX) > 0.01 || Math.abs(shadowY) > 0.01) {
@@ -224,6 +331,7 @@
         
         const yearDisplay = document.getElementById('yearDisplay');
         const monthDisplay = document.getElementById('monthDisplay');
+    
 
         // Custom for each year
         const scrollPercentages = {
@@ -283,125 +391,97 @@
         }
 
         // Call updateDate on scroll
-        window.addEventListener('scroll', updateDate);
+        window.addEventListener('load', updateDate);
 
 
         
         
-        // --- SCROLLING ---
-        function setupMovementHandlers() {
+         // --- DRAGS ---  
+        
+        const cards = document.querySelectorAll('.card');
+        const relativePos = document.querySelector('.background');
+        const dragDelay = 0.05; 
+        const cardRadiusX = 25;
+        const cardRadiusY = 25;
+        
+        cards.forEach(card => {
             let isDragging = false;
-            let startY, startX;
-            let scrollSpeedY = 0;
-            let scrollSpeedX = 0;
-            let targetScrollSpeedY = 0;
-            let targetScrollSpeedX = 0;
-            const acceleration = 0.15;
-            const deceleration = 0.98; 
-            const edgeDeceleration = 0.97; // Stronger deceleration when at edges
-            const minDeceleration = 0.2; // Minimum speed before clamping to zero
+            let dragMouseX = 0;
+            let dragMouseY = 0;
+            
+            let relativeX = -relativePos.offsetLeft;
+            let relativeY = -relativePos.offsetTop;
+            
+            let cardX = (card.offsetLeft + cardRadiusX - relativeX); 
+            let cardY = (card.offsetTop + cardRadiusY - relativeY);
 
-            // Maximum scrolling speed
-            const maxScrollSpeed = Math.min(window.innerWidth / 75,window.innerHeight / 75); // Max scrolling speed in pixels
+            let originalCardX = card.offsetLeft; 
+            let originalCardY = card.offsetTop;
+            
+            
+          
+            let animationFrameId = null; 
 
-            // Thresholds for early deceleration
-            const topThreshold = 0 * (window.innerHeight / 100);   
-            const bottomThreshold = -80 * (window.innerHeight / 100); // -100 would be 0
-            const sideThreshold = 15 * (window.innerWidth / 100);
 
-            function startDrag(e) {
-                isDragging = true;
+            // Start dragging
+            card.addEventListener('mousedown', (event) => {
                 
-                startY = e.touches ? e.touches[0].clientY : e.clientY;
-                startX = e.touches ? e.touches[0].clientX : e.clientX;
-            }
+                isDragging = true; 
+                
 
-            function endDrag() {
-                isDragging = false;
-            }
+                dragMouseX = event.clientX; 
+                dragMouseY = event.clientY; 
 
-            function move(e) {
-                if (!isDragging) return;
+                // Prevent default behavior
+                event.preventDefault(); 
+                event.stopPropagation(); // Prevent event bubbling
 
-                const deltaY = startY - (e.touches ? e.touches[0].clientY : e.clientY);
-                const deltaX = startX - (e.touches ? e.touches[0].clientX : e.clientX);
-                startY = e.touches ? e.touches[0].clientY : e.clientY;
-                startX = e.touches ? e.touches[0].clientX : e.clientX;
+                animationFrameId = requestAnimationFrame(animateDrag);
+            });
 
-                // Speed factors 
-                targetScrollSpeedY = deltaY * 3.6;
-                targetScrollSpeedX = deltaX * 3.6;
-            }
 
-            function smoothScroll() {
-                // Check current scroll positions
-                const scrollTop = window.scrollY;
-                const scrollLeft = window.scrollX;
-                const windowHeight = window.innerHeight;
-                const windowWidth = window.innerWidth;
-                const documentHeight = document.body.scrollHeight;
-                const documentWidth = document.body.scrollWidth;
-
-                // Implement early deceleration when approaching the edges
-                if (scrollTop <= topThreshold && scrollSpeedY < 0) {
-                    scrollSpeedY *= 0.9; // Top
-                }
-                if (scrollTop + windowHeight >= documentHeight - bottomThreshold && scrollSpeedY > 0) {
-                    scrollSpeedY *= 0.7; // Bottom
-                }
-                if (scrollLeft <= sideThreshold && scrollSpeedX < 0) {
-                    scrollSpeedX *= 0.7; // Left edge
-                }
-                if (scrollLeft + windowWidth >= documentWidth - sideThreshold && scrollSpeedX > 0) {
-                    scrollSpeedX *= 0.7; // Right edge
-                }
-
-                // Stronger deceleration to vertical speed
-                if (scrollLeft <= sideThreshold || scrollLeft + windowWidth >= documentWidth - sideThreshold) {
-                    scrollSpeedY *= edgeDeceleration; 
-                }
-
+            document.addEventListener('mousemove', (event) => {
                 if (isDragging) {
-                    scrollSpeedY += (targetScrollSpeedY - scrollSpeedY) * acceleration;
-                    scrollSpeedX += (targetScrollSpeedX - scrollSpeedX) * acceleration;
+                    dragMouseX = event.clientX;
+                    dragMouseY = event.clientY;
+                }
+            });
 
-                    // Clamp the scrolling speed to the maximum value
-                    scrollSpeedY = Math.max(Math.min(scrollSpeedY, maxScrollSpeed), -maxScrollSpeed);
-                    scrollSpeedX = Math.max(Math.min(scrollSpeedX, maxScrollSpeed), -maxScrollSpeed);
 
-                    window.scrollBy(scrollSpeedX, scrollSpeedY);
+            // Stop dragging
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+
+
+            function animateDrag() {
+                if (isDragging) {
+
+                    cardX += (dragMouseX - cardX) * dragDelay; 
+                    cardY += (dragMouseY - cardY) * dragDelay; 
+
                 } else {
-                    // Apply deceleration when not dragging
-                    scrollSpeedY *= deceleration;
-                    scrollSpeedX *= deceleration;
-
-                    // Ensure speeds approach zero more effectively
-                    if (Math.abs(scrollSpeedY) < minDeceleration) scrollSpeedY = 0;
-                    if (Math.abs(scrollSpeedX) < minDeceleration) scrollSpeedX = 0;
-
-                    // Clamp the scrolling speed to the maximum value
-                    scrollSpeedY = Math.max(Math.min(scrollSpeedY, maxScrollSpeed), -maxScrollSpeed);
-                    scrollSpeedX = Math.max(Math.min(scrollSpeedX, maxScrollSpeed), -maxScrollSpeed);
-
-                    window.scrollBy(scrollSpeedX, scrollSpeedY);
+                    // Snap to last position when mouse is released
+                    cardX += (dragMouseX - cardX) * dragDelay; 
+                    cardY += (dragMouseY - cardY) * dragDelay;
                 }
 
-                requestAnimationFrame(smoothScroll);
+
+                card.style.transform = `translate(${cardX-originalCardX-cardRadiusX+relativeX}px, ${cardY-originalCardY-cardRadiusY+relativeY}px)`;
+
+
+                // Continue the animation loop only if still moving
+                if (isDragging || Math.abs(dragMouseX - cardX) > 0.01 || Math.abs(dragMouseY - cardY) > 0.01) {
+                    animationFrameId = requestAnimationFrame(animateDrag);
+                } else {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
             }
-
-            // Mouse events
-            window.addEventListener('mousedown', startDrag);
-            window.addEventListener('mouseup', endDrag);
-            window.addEventListener('mousemove', move);
-
-            // Touch events
-            window.addEventListener('touchstart', startDrag);
-            window.addEventListener('touchend', endDrag);
-            window.addEventListener('touchmove', move);
-
-            smoothScroll();
-        }
+        });
         
+       
         
         
         
@@ -431,45 +511,8 @@
         setTimeout(updateOffset, 0);
     });
 
-      
     
-        
-         // --- FISHEYE ---    
-        const circleFish = document.querySelector('.circle');
-
-        // Add a mousemove event listener to apply fish-eye effect based on mouse position
-        document.addEventListener('mousemove', (event) => {
-            const mouseXFish = event.clientX;
-            const mouseYFish = event.clientY;
-
-            // Get the viewport dimensions
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-
-            // Calculate distance from the cursor to the center of the viewport
-            const centerXFish = viewportWidth / 2;
-            const centerYFish = viewportHeight / 2;
-            const distanceXFish = Math.abs(centerXFish - mouseXFish);
-            const distanceYFish = Math.abs(centerYFish - mouseYFish);
-            
-            // Calculate a scaling factor based on distance from the center
-            const maxDistanceFish = Math.sqrt(Math.pow(centerXFish, 2) + Math.pow(centerYFish, 2));
-            const distanceFromCenterFish = Math.sqrt(Math.pow(distanceXFish, 2) + Math.pow(distanceYFish, 2));
-            
-            // Calculate the scale factor (closer to center = larger scale)
-            const scaleFactorFish = 1 + (1 - (distanceFromCenterFish / maxDistanceFish)) * 2; // Scale between 1x and 3x
-            
-            // Adjust background-size based on distance from center
-            const newBackgroundSizeFish = `min(${4 * scaleFactorFish}vw, ${4 * scaleFactorFish}vh)`;
-            circle.style.backgroundSizeFish = `${newBackgroundSizeFish} ${newBackgroundSizeFish}`;
-        });        
-        
-        
-        
-        // --- LOG ---
-        const Display = document.querySelector('.display');
-        Display.textContent = ``;
-
+    
     </script>
 </body>
 
