@@ -31,7 +31,10 @@
             <!-- Date -->
             <div class="date" id="dateDisplay">
                 <div class="year" id="yearDisplay"></div>
-                <div class="month" id="monthDisplay"></div>
+                <div class="date-location">
+                    <div class="month" id="monthDisplay"></div>
+                    <div class="location" id="locationDisplay">madrid, spain</div>
+                </div>
             </div>
             
             <div class="scrollBar" id="scrollBar"></div>
@@ -59,6 +62,7 @@
         <div id="background" class="background disabled">
             
         <div id="card" class="card" style="top: 550vh; left: 170vw;"></div>
+            
         <div id="card" class="card" style="top: 575vh; left: 195vw;"></div>
         <div id="card" class="card" style="top: 600vh; left: 220vw;"></div>
     
@@ -164,6 +168,7 @@
                 x: matrix.m41,
                 y: matrix.m42
             };
+            console.log(matrix);
         }
 
         // Utility function to get the correct position for both mouse and touch events
@@ -264,8 +269,8 @@
             // Define boundaries in vw and vh
             const minX = -0.2 * window.innerWidth;
             const maxX = 0.2 * window.innerWidth;
-            const minY = -3 * window.innerHeight;
-            const maxY = 3 * window.innerHeight;
+            const minY = -4 * window.innerHeight;
+            const maxY = 0.5 * window.innerHeight;
 
             // Clamp the draggable content position within defined boundaries
             scrollContentX = Math.max(minX, Math.min(maxX, scrollContentX));
@@ -390,8 +395,8 @@
         };
 
         const monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
+            'january', 'february', 'march', 'april', 'may', 'june',
+            'july', 'august', 'september', 'october', 'november', 'december'
         ];
 
         const totalYears = Object.keys(scrollPercentages).length;
@@ -574,32 +579,7 @@
         });
 
         
-        
-        // --- CENTER THE NAV ---   
-        const pill1 = document.querySelector('.pill1');
-        const pillBox = document.querySelector('.pill-box');
-    
-        function updateOffset() {
-        
-            // Get the total width of the viewport
-            const totalWidth = window.innerWidth;
-
-            // Get the bounding rectangle of pill1
-            const pill1Rect = pill1.getBoundingClientRect();
-
-            // Calculate the center of pill1
-            const pill1Center = pill1Rect.left + (pill1Rect.width / 2);
-
-            // Calculate the difference between center of viewport and center of pill1
-            const offset = (totalWidth / 2) - pill1Center;
-            
-            
-            pillBox.style.transform = `translateX(${offset}px)`;  
-    }
-
-        window.addEventListener('load', () => {
-        setTimeout(updateOffset, 0);
-    });
+     
 
     
     
