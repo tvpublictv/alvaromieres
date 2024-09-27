@@ -57,6 +57,8 @@
         <div id="background" class="background disabled">
             
         <div id="card" class="card" style="top: 550vh; left: 170vw;"></div>
+        <div id="card" class="card" style="top: 575vh; left: 195vw;"></div>
+        <div id="card" class="card" style="top: 600vh; left: 220vw;"></div>
     
         
         
@@ -135,25 +137,25 @@
 
         
         // --- SCROLL
-        
+
         const draggableContent = document.getElementById('background');
-        let scrollMouseX = 0;
-        let scrollMouseY = 0;
+        let scrollMousePosX = 0;  // Variable to track X position of the cursor
+        let scrollMousePosY = 0;  // Variable to track Y position of the cursor
 
-        let draggableContentX = 0;
-        let draggableContentY = 0;
+        let scrollContentX = 0;
+        let scrollContentY = 0;
 
-        let offsetX = 0;
-        let offsetY = 0;
+        let scrollOffsetX = 0;
+        let scrollOffsetY = 0;
 
-        const scrollDelay = 0.05;
-        let isScrolling = false;
+        const scrollSpeedDelay = 0.05;
+        let isContentScrolling = false;
 
-        let animationFrameId = null;
-
+        let scrollAnimationFrameId = null;
+        let scrollStopTimeoutId = null;  // Timeout ID to manage scroll stop delay
 
         // Get the current transform translate values
-        function getTranslateValues(element) {
+        function getScrollTranslateValues(element) {
             const style = window.getComputedStyle(element);
             const matrix = new WebKitCSSMatrix(style.transform);
             return {
@@ -162,78 +164,118 @@
             };
         }
 
-        // Start scrolling
-        draggableContent.addEventListener('mousedown', (event) => {
-            isScrolling = true;
+        // Utility function to get the correct position for both mouse and touch events
+        const getClientPositionScroll = (event) => {
+            if (event.touches && event.touches.length > 0) {
+                return {
+                    x: event.touches[0].clientX,
+                    y: event.touches[0].clientY
+                };
+            }
+            return {
+                x: event.clientX,
+                y: event.clientY
+            };
+        };
 
-            // Capture the initial mouse positions
-            scrollMouseX = event.clientX;
-            scrollMouseY = event.clientY;
+        // Start scrolling (Mouse + Touch)
+        const startScroll = (event) => {
+            isContentScrolling = true;
+
+            const clientPos = getClientPositionScroll(event);
+
+            // Capture the initial positions
+            scrollMousePosX = clientPos.x;
+            scrollMousePosY = clientPos.y;
 
             // Get current translate values of the draggable content
-            const translate = getTranslateValues(draggableContent);
-            draggableContentX = translate.x;
-            draggableContentY = translate.y;
+            const scrollTranslate = getScrollTranslateValues(draggableContent);
+            scrollContentX = scrollTranslate.x;
+            scrollContentY = scrollTranslate.y;
 
-            // Calculate offsets relative to the current mouse position
-            offsetX = event.clientX - draggableContentX;
-            offsetY = event.clientY - draggableContentY;
+            // Calculate offsets relative to the current position
+            scrollOffsetX = clientPos.x - scrollContentX;
+            scrollOffsetY = clientPos.y - scrollContentY;
 
             // Prevent default behavior (like text selection)
             event.preventDefault();
             event.stopPropagation();
 
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
+            cancelAnimationFrame(scrollAnimationFrameId);
+            scrollAnimationFrameId = null;
+
             // Start the animation loop
-            requestAnimationFrame(scroll);
-        });
+            requestAnimationFrame(animateScroll);
+        };
 
-        // Track mouse movement
-        document.addEventListener('mousemove', (event) => {
-            if (isScrolling) {
-                scrollMouseX = event.clientX;
-                scrollMouseY = event.clientY;
+        // Track mouse or touch movement
+        const handleScroll = (event) => {
+            if (isContentScrolling) {
+                const clientPos = getClientPositionScroll(event);
+                scrollMousePosX = clientPos.x;
+                scrollMousePosY = clientPos.y;
             }
-        });
+        };
 
-        // Stop scrolling
-        document.addEventListener('mouseup', () => {
-            isScrolling = false;
-        });
+        // Stop scrolling (Mouse + Touch)
+        const stopScroll = () => {
+            isContentScrolling = false;
+        };
+
+        // Mouse events
+        draggableContent.addEventListener('mousedown', startScroll);
+        document.addEventListener('mousemove', handleScroll);
+        document.addEventListener('mouseup', stopScroll);
+
+        // Touch events
+        draggableContent.addEventListener('touchstart', startScroll);
+        document.addEventListener('touchmove', handleScroll);
+        document.addEventListener('touchend', stopScroll);
 
         // Smoothly move the draggable content
-        function scroll() {
-            if (isScrolling) {
-                // Calculate new positions based on mouse movement
-                draggableContentX += (scrollMouseX - draggableContentX - offsetX) * scrollDelay;
-                draggableContentY += (scrollMouseY - draggableContentY - offsetY) * scrollDelay;       
+        function animateScroll() {
+            if (isContentScrolling) {
+                // Clear any existing timeout while scrolling
+                if (scrollStopTimeoutId) {
+                    clearTimeout(scrollStopTimeoutId);
+                    scrollStopTimeoutId = null;
+                }
+
+                // Calculate new positions based on movement
+                scrollContentX += (scrollMousePosX - scrollContentX - scrollOffsetX) * scrollSpeedDelay;
+                scrollContentY += (scrollMousePosY - scrollContentY - scrollOffsetY) * scrollSpeedDelay;
+
             } else {
-                // Calculate new positions based on mouse movement
-                draggableContentX += (scrollMouseX - draggableContentX - offsetX) * scrollDelay;
-                draggableContentY += (scrollMouseY - draggableContentY - offsetY) * scrollDelay;       
+                // Snap to last position when the mouse or touch is released
+                scrollContentX += (scrollMousePosX - scrollContentX - scrollOffsetX) * scrollSpeedDelay;
+                scrollContentY += (scrollMousePosY - scrollContentY - scrollOffsetY) * scrollSpeedDelay;
+
+                // Set a timeout to stop animation after a delay
+                if (!scrollStopTimeoutId) {
+                    scrollStopTimeoutId = setTimeout(() => {
+                        cancelAnimationFrame(scrollAnimationFrameId);
+                        scrollAnimationFrameId = null;
+                    }, 3000);  // 1-second delay before stopping the animation
+                }
             }
-            
+
             // Define boundaries in vw and vh
             const minX = -0.2 * window.innerWidth;
-            const maxX = 0.2 * window.innerWidth;  
+            const maxX = 0.2 * window.innerWidth;
             const minY = -3 * window.innerHeight;
-            const maxY = 3 * window.innerHeight; 
-            
+            const maxY = 3 * window.innerHeight;
+
             // Clamp the draggable content position within defined boundaries
-            draggableContentX = Math.max(minX, Math.min(maxX, draggableContentX));
-            draggableContentY = Math.max(minY, Math.min(maxY, draggableContentY));
+            scrollContentX = Math.max(minX, Math.min(maxX, scrollContentX));
+            scrollContentY = Math.max(minY, Math.min(maxY, scrollContentY));
 
             // Set draggable content position using translate
-            draggableContent.style.transform = `translate(${draggableContentX}px, ${draggableContentY}px)`;
+            draggableContent.style.transform = `translate(${scrollContentX}px, ${scrollContentY}px)`;
 
-            // Continue the animation loop only if still moving
-            if (isScrolling || Math.abs(scrollMouseX - draggableContentX - offsetX) > 10 || Math.abs(scrollMouseY - draggableContentY - offsetY) > 10) {
-                animationFrameId = requestAnimationFrame(scroll);
-            } else {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
+            // Continue the animation loop
+            scrollAnimationFrameId = requestAnimationFrame(animateScroll);
+
+            console.log(scrollContentX, scrollContentY);  // Logging for testing purposes
         }
 
         
@@ -397,92 +439,137 @@
         
         
          // --- DRAGS ---  
-        
+
         const cards = document.querySelectorAll('.card');
         const relativePos = document.querySelector('.background');
         const dragDelay = 0.05; 
         const cardRadiusX = 25;
         const cardRadiusY = 25;
-        
+
         cards.forEach(card => {
             let isDragging = false;
             let dragMouseX = 0;
             let dragMouseY = 0;
-            
+
             let relativeX = -relativePos.offsetLeft;
             let relativeY = -relativePos.offsetTop;
-            
+
+            let newRelativeX = 0;
+            let newRelativeY = 0;
+
             let cardX = (card.offsetLeft + cardRadiusX - relativeX); 
             let cardY = (card.offsetTop + cardRadiusY - relativeY);
 
             let originalCardX = card.offsetLeft; 
             let originalCardY = card.offsetTop;
-            
-            
-          
+
             let animationFrameId = null; 
+            let stopTimeoutId = null;  // Timeout ID to manage stop delay
 
 
-            // Start dragging
-            card.addEventListener('mousedown', (event) => {
-                
-                isDragging = true; 
-                
+            // Utility to get the correct clientX and clientY for both touch and mouse events
+            const getClientPosition = (event) => {
+                if (event.touches && event.touches.length > 0) {
+                    return {
+                        x: event.touches[0].clientX,
+                        y: event.touches[0].clientY
+                    };
+                }
+                return {
+                    x: event.clientX,
+                    y: event.clientY
+                };
+            };
 
-                dragMouseX = event.clientX; 
-                dragMouseY = event.clientY; 
+            // Start dragging (Mouse + Touch)
+            const startDrag = (event) => {
+                isDragging = true;  
+
+                // Get current translate values of the draggable content
+                const relativeTranslate = getScrollTranslateValues(relativePos);
+                newRelativeX = relativeTranslate.x;
+                newRelativeY = relativeTranslate.y;
+
+                const clientPos = getClientPosition(event);
+                dragMouseX = clientPos.x; 
+                dragMouseY = clientPos.y;
 
                 // Prevent default behavior
                 event.preventDefault(); 
                 event.stopPropagation(); // Prevent event bubbling
 
+                cancelAnimationFrame(animationFrameId);
                 animationFrameId = requestAnimationFrame(animateDrag);
-            });
+            };
 
-
-            document.addEventListener('mousemove', (event) => {
+            // Handle mousemove and touchmove events
+            const handleDrag = (event) => {
                 if (isDragging) {
-                    dragMouseX = event.clientX;
-                    dragMouseY = event.clientY;
+                    const clientPos = getClientPosition(event);
+                    dragMouseX = clientPos.x;
+                    dragMouseY = clientPos.y;
                 }
-            });
+            };
 
-
-            // Stop dragging
-            document.addEventListener('mouseup', () => {
+            // Stop dragging (Mouse + Touch)
+            const stopDrag = () => {
                 isDragging = false;
-            });
+            };
 
+            // Mouse events
+            card.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', handleDrag);
+            document.addEventListener('mouseup', stopDrag);
 
+            // Touch events
+            card.addEventListener('touchstart', startDrag);
+            document.addEventListener('touchmove', handleDrag);
+            document.addEventListener('touchend', stopDrag);
 
+            // Animation loop for dragging
             function animateDrag() {
                 if (isDragging) {
+                    // Clear any existing timeout while dragging
+                    if (stopTimeoutId) {
+                        clearTimeout(stopTimeoutId);
+                        stopTimeoutId = null;
+                    }
 
-                    cardX += (dragMouseX - cardX) * dragDelay; 
-                    cardY += (dragMouseY - cardY) * dragDelay; 
+                    cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
+                    cardY += (dragMouseY - cardY - newRelativeY) * dragDelay; 
 
                 } else {
-                    // Snap to last position when mouse is released
-                    cardX += (dragMouseX - cardX) * dragDelay; 
-                    cardY += (dragMouseY - cardY) * dragDelay;
+                    // Snap to last position when mouse or touch is released
+                    cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
+                    cardY += (dragMouseY - cardY - newRelativeY) * dragDelay;
+
+                    // Set a timeout to stop animation after a delay
+                    if (!stopTimeoutId) {
+                        stopTimeoutId = setTimeout(() => {
+                            cancelAnimationFrame(animationFrameId);
+                            animationFrameId = null;
+                        }, 3000);  // 1 second delay before stopping the animation
+                    }
                 }
 
+                // Define boundaries in vw and vh
+                const dragMinX = -0.15 * window.innerWidth;
+                const dragMaxX = 1.15 * window.innerWidth;
+                const dragMinY = -0.45 * window.innerHeight;
+                const dragMaxY = 4.95 * window.innerHeight;
 
+                // Clamp the draggable content position within defined boundaries
+                cardX = Math.max(dragMinX, Math.min(dragMaxX, cardX));
+                cardY = Math.max(dragMinY, Math.min(dragMaxY, cardY));
+
+                // Update the card's transform
                 card.style.transform = `translate(${cardX-originalCardX-cardRadiusX+relativeX}px, ${cardY-originalCardY-cardRadiusY+relativeY}px)`;
 
-
-                // Continue the animation loop only if still moving
-                if (isDragging || Math.abs(dragMouseX - cardX) > 0.01 || Math.abs(dragMouseY - cardY) > 0.01) {
-                    animationFrameId = requestAnimationFrame(animateDrag);
-                } else {
-                    cancelAnimationFrame(animationFrameId);
-                    animationFrameId = null;
-                }
+                // Continue the animation loop
+                animationFrameId = requestAnimationFrame(animateDrag);
             }
         });
-        
-       
-        
+
         
         
         // --- CENTER THE NAV ---   
