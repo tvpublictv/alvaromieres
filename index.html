@@ -34,6 +34,8 @@
                 <div class="month" id="monthDisplay"></div>
             </div>
             
+            <div class="scrollBar" id="scrollBar"></div>
+            
             <!-- Index -->
             <nav class="navigation">
                 <ul class="pill-box">
@@ -306,7 +308,7 @@
             const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
             const standardDeviation = `calc(${offset} * ${distance * 1.66})`; // Scale the distance as needed
 
-            circleShadow.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} ${standardDeviation} #7f7f7f)`;
+            circleShadow.style.filter = `drop-shadow(${shadowOffsetX} ${shadowOffsetY} ${standardDeviation} #000000)`;
         }
 
         // Function to animate shadow returning to center
@@ -443,8 +445,6 @@
         const cards = document.querySelectorAll('.card');
         const relativePos = document.querySelector('.background');
         const dragDelay = 0.05; 
-        const cardRadiusX = 25;
-        const cardRadiusY = 25;
 
         cards.forEach(card => {
             let isDragging = false;
@@ -456,6 +456,9 @@
 
             let newRelativeX = 0;
             let newRelativeY = 0;
+            
+            let cardRadiusX = card.offsetWidth / 2;
+            let cardRadiusY = card.offsetHeight / 2;
 
             let cardX = (card.offsetLeft + cardRadiusX - relativeX); 
             let cardY = (card.offsetTop + cardRadiusY - relativeY);
