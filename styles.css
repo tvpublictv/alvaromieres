@@ -105,15 +105,20 @@ header {
     position: fixed;
     z-index: 109001;
     width: 100vw;
-    top: min(1.5vw, 1.5vh);
-    left: min(1.5vw, 1.5vh);
-    text-align: left;
+    top: 0;
+    left: min(1.15vw, 1.15vh);
     user-select: none;
     margin: 0;
     padding: 0;
     line-height: 0.9;
     display: flex;
     backdrop-filter: blur(10px);
+}
+.year-blur{
+    font-size: min(10vw, 10vh);
+    font-weight: bold;
+    color: #999999;
+    filter: blur(0.5px);
 }
 .year {
     font-size: min(10vw, 10vh);
@@ -129,9 +134,7 @@ header {
     font-size: min(5vw, 5vh);
     font-weight: bold;
     color: #e6e6e6;
-    margin-top: min(0.5vw, 0.5vh);
-    
-    
+    margin-top: min(0.5vw, 0.5vh);    
 }
 .location {
     font-size: min(3vw, 3vh);
@@ -172,7 +175,7 @@ nav{
 .pill {
     color: #4d4d4d;
     background-color: rgba(0, 0, 0, 0);
-    font-size: min(5vw, 5vh);
+    font-size: min(5.6vw, 5.6vh);
     font-weight: bold;
     font-family: Helvetica, sans-serif;
     cursor: pointer;
@@ -197,19 +200,6 @@ nav{
     touch-action: manipulation;
 }
 
-.pill1 {
-    order: 0;
-}
-
-.pill2, .pill3 {
-    order: 1;
-}
-
-.pill4, .pill5 {
-    order: -1;
-}
-
-
 
 
 /* Elipse overlay */
@@ -224,9 +214,9 @@ nav{
     border-width: 0vh 0vw 0vh 0vw;
     border-style: solid;
     border-color: rgba(15, 15, 15, 1);
-    background: radial-gradient(rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 70%);
+    background: radial-gradient(rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 0.95) 70%);
     pointer-events: none;
-    z-index: 1000;
+    z-index: 2;
     animation: zoomGrid 2s forwards 2.5s;
 }
 
@@ -275,15 +265,51 @@ nav{
 
 .card {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: min(20vw, 20vh);
-    height: min(20vw, 20vh);
-    background-color: rgba(30, 30, 30, 0.9);
-    border-radius: min(4vw, 4vh);
+    height: auto;
+    background-color: rgba(230, 230, 230, 0.9);
+    
+    border-color: black;
+    border-style: solid;
+    border-width: min(0.2vw, 0.2vh);
+    
+    border-radius: min(1vw, 1vh);
     pointer-events: auto;
     transition: transform 0.1s ease-in-out;
     z-index: 50;
+    flex-grow: 0;
+    overflow-x: hidden;
     
     
+    
+    text-align: start;
+    color: black;
+    font-weight: bold;
+    font-size: min(1.5vw, 1.5vh);
+    line-height: 1.5;
+}
+
+.card:hover {   
+    transform: scale(1.0255);
+}
+
+.card img{
+    border-radius: min(1vw, 1vh);
+    
+    border-color: black;
+    border-style: solid;
+    border-width: min(0.2vw, 0.2vh);
+    
+    width: 100%;
+    align-self: flex-start;
+    height: auto;
+    
+    bottom: min(2vw, 2vh);
+}
+.card-text {
+    margin-left: min(0.75vw, 0.75vh);
 }
 
 

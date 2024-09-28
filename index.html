@@ -30,6 +30,7 @@
             
             <!-- Date -->
             <div class="date" id="dateDisplay">
+                <div class="year-blur">20</div>
                 <div class="year" id="yearDisplay"></div>
                 <div class="date-location">
                     <div class="month" id="monthDisplay"></div>
@@ -42,11 +43,10 @@
             <!-- Index -->
             <nav class="navigation">
                 <ul class="pill-box">
-                    <li class="pill pill1">Architecture</li>
-                    <li class="pill pill2">Research</li>
-                    <li class="pill pill3">Other</li>
-                    <li class="pill pill4">Art</li>
-                    <li class="pill pill5">Visual</li>
+                    <li class="pill">Visual</li>
+                    <li class="pill">Architecture</li>
+                    <li class="pill">Research</li>
+                    <li class="pill">Other</li>
             </ul></nav>
         
                
@@ -61,10 +61,17 @@
         <!-- Circle Pattern -->
         <div id="background" class="background disabled">
             
-        <div id="card" class="card" style="top: 550vh; left: 170vw;"></div>
-            
-        <div id="card" class="card" style="top: 575vh; left: 195vw;"></div>
-        <div id="card" class="card" style="top: 600vh; left: 220vw;"></div>
+        <div id="card" class="card" style="top: 530vh; left: 190vw; z-index: 51;"><img src="images/00a.png" alt="00a"><span class="card-text">arch01a Axonometry</span></div>
+        <div id="card" class="card" style="top: 530vh; left: 199vw; z-index: 52;"><img src="images/00b.png" alt="00b"><span class="card-text">arch04c Urbanism catalog</span></div>
+        <div id="card" class="card" style="top: 530vh; left: 184vw; z-index: 53;"><img src="images/00c.png" alt="00c"><span class="card-text">arch04f Building flows</span></div>
+        <div id="card" class="card" style="top: 516vh; left: 192vw;"><img src="images/00d.png" alt="00d"><span class="card-text">arch04a Housing densities</span></div>
+        <div id="card" class="card" style="top: 512vh; left: 201vw;"><img src="images/00e.png" alt="00e"><span class="card-text">arch04d Programatic</span></div>
+        <div id="card" class="card" style="top: 493vh; left: 183vw;"><img src="images/00f.gif" alt="00f"><span class="card-text">arch07 Ontology on Space</span></div>
+        <div id="card" class="card" style="top: 408vh; left: 150vw;"><img src="images/00g.gif" alt="00g"><span class="card-text">arch07 Old Monument</span></div>
+        <div id="card" class="card" style="top: 415vh; left: 158vw;"><img src="images/00h.gif" alt="00h"><span class="card-text">arch11 Public approach</span></div>
+        <div id="card" class="card" style="top: 360vh; left: 199vw;"><img src="images/00i.gif" alt="00i"><span class="card-text">arch01 Wind analysis</span></div>
+        <div id="card" class="card" style="top: 359vh; left: 179vw;"><img src="images/00j.png" alt="00j"><span class="card-text">visual08 Zoom 8</span></div>
+
     
         
         
@@ -375,7 +382,7 @@
         
         // --- DATE ---
         
-        const startYear = 2024;
+        const startYear = 24;
         const startPercentage = 0.13;
         
         const yearDisplay = document.getElementById('yearDisplay');
@@ -447,141 +454,155 @@
         
          // --- DRAGS ---  
 
-        const cards = document.querySelectorAll('.card');
-        const relativePos = document.querySelector('.background');
-        const dragDelay = 0.05; 
+const cards = document.querySelectorAll('.card');
+const relativePos = document.querySelector('.background');
+const dragDelay = 0.05; 
 
-        cards.forEach(card => {
-            let isDragging = false;
-            let dragMouseX = 0;
-            let dragMouseY = 0;
-
-            let relativeX = -relativePos.offsetLeft;
-            let relativeY = -relativePos.offsetTop;
-
-            let newRelativeX = 0;
-            let newRelativeY = 0;
-            
-            let cardRadiusX = card.offsetWidth / 2;
-            let cardRadiusY = card.offsetHeight / 2;
-
-            let cardX = (card.offsetLeft + cardRadiusX - relativeX); 
-            let cardY = (card.offsetTop + cardRadiusY - relativeY);
-
-            let originalCardX = card.offsetLeft; 
-            let originalCardY = card.offsetTop;
-
-            let animationFrameId = null; 
-            let stopTimeoutId = null;  // Timeout ID to manage stop delay
-
-
-            // Utility to get the correct clientX and clientY for both touch and mouse events
-            const getClientPosition = (event) => {
-                if (event.touches && event.touches.length > 0) {
-                    return {
-                        x: event.touches[0].clientX,
-                        y: event.touches[0].clientY
-                    };
-                }
-                return {
-                    x: event.clientX,
-                    y: event.clientY
-                };
-            };
-
-            // Start dragging (Mouse + Touch)
-            const startDrag = (event) => {
-                isDragging = true;  
-
-                // Get current translate values of the draggable content
-                const relativeTranslate = getScrollTranslateValues(relativePos);
-                newRelativeX = relativeTranslate.x;
-                newRelativeY = relativeTranslate.y;
-
-                const clientPos = getClientPosition(event);
-                dragMouseX = clientPos.x; 
-                dragMouseY = clientPos.y;
-
-                // Prevent default behavior
-                event.preventDefault(); 
-                event.stopPropagation(); // Prevent event bubbling
-
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = requestAnimationFrame(animateDrag);
-            };
-
-            // Handle mousemove and touchmove events
-            const handleDrag = (event) => {
-                if (isDragging) {
-                    const clientPos = getClientPosition(event);
-                    dragMouseX = clientPos.x;
-                    dragMouseY = clientPos.y;
-                }
-            };
-
-            // Stop dragging (Mouse + Touch)
-            const stopDrag = () => {
-                isDragging = false;
-            };
-
-            // Mouse events
-            card.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', handleDrag);
-            document.addEventListener('mouseup', stopDrag);
-
-            // Touch events
-            card.addEventListener('touchstart', startDrag);
-            document.addEventListener('touchmove', handleDrag);
-            document.addEventListener('touchend', stopDrag);
-
-            // Animation loop for dragging
-            function animateDrag() {
-                if (isDragging) {
-                    // Clear any existing timeout while dragging
-                    if (stopTimeoutId) {
-                        clearTimeout(stopTimeoutId);
-                        stopTimeoutId = null;
-                    }
-
-                    cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
-                    cardY += (dragMouseY - cardY - newRelativeY) * dragDelay; 
-
-                } else {
-                    // Snap to last position when mouse or touch is released
-                    cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
-                    cardY += (dragMouseY - cardY - newRelativeY) * dragDelay;
-
-                    // Set a timeout to stop animation after a delay
-                    if (!stopTimeoutId) {
-                        stopTimeoutId = setTimeout(() => {
-                            cancelAnimationFrame(animationFrameId);
-                            animationFrameId = null;
-                        }, 3000);  // 1 second delay before stopping the animation
-                    }
-                }
-
-                // Define boundaries in vw and vh
-                const dragMinX = -0.15 * window.innerWidth;
-                const dragMaxX = 1.15 * window.innerWidth;
-                const dragMinY = -0.45 * window.innerHeight;
-                const dragMaxY = 4.95 * window.innerHeight;
-
-                // Clamp the draggable content position within defined boundaries
-                cardX = Math.max(dragMinX, Math.min(dragMaxX, cardX));
-                cardY = Math.max(dragMinY, Math.min(dragMaxY, cardY));
-
-                // Update the card's transform
-                card.style.transform = `translate(${cardX-originalCardX-cardRadiusX+relativeX}px, ${cardY-originalCardY-cardRadiusY+relativeY}px)`;
-
-                // Continue the animation loop
-                animationFrameId = requestAnimationFrame(animateDrag);
-            }
-        });
-
-        
-     
-
+cards.forEach(card => {
     
+    
+    let isDragging = false;
+    let dragMouseX = 0;
+    let dragMouseY = 0;
+
+    let relativeX = -relativePos.offsetLeft;
+    let relativeY = -relativePos.offsetTop;
+
+    let newRelativeX = 0;
+    let newRelativeY = 0;
+    
+    let cardRadiusX = card.offsetWidth / 2;
+    let cardRadiusY = card.offsetHeight / 2;
+
+    let cardX = (card.offsetLeft + cardRadiusX - relativeX); 
+    let cardY = (card.offsetTop + cardRadiusY - relativeY);
+
+    let originalCardX = card.offsetLeft; 
+    let originalCardY = card.offsetTop;
+
+    let animationFrameId = null; 
+    let stopTimeoutId = null;  // Timeout ID to manage stop delay
+
+    // Utility to get the correct clientX and clientY for both touch and mouse events
+    const getClientPosition = (event) => {
+        if (event.touches && event.touches.length > 0) {
+            return {
+                x: event.touches[0].clientX,
+                y: event.touches[0].clientY
+            };
+        }
+        return {
+            x: event.clientX,
+            y: event.clientY
+        };
+    };
+
+    // Start dragging (Mouse + Touch)
+    const startDrag = (event) => {
+        isDragging = true;  
+        const relativeTranslate = getScrollTranslateValues(relativePos);
+        newRelativeX = relativeTranslate.x;
+        newRelativeY = relativeTranslate.y;
+
+        const clientPos = getClientPosition(event);
+        dragMouseX = clientPos.x; 
+        dragMouseY = clientPos.y;
+
+        event.preventDefault(); 
+        event.stopPropagation();
+
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(animateDrag);
+    };
+
+    // Handle mousemove and touchmove events
+    const handleDrag = (event) => {
+        if (isDragging) {
+            const clientPos = getClientPosition(event);
+            dragMouseX = clientPos.x;
+            dragMouseY = clientPos.y;
+        }
+    };
+
+    // Stop dragging (Mouse + Touch)
+    const stopDrag = () => {
+        isDragging = false;
+    };
+
+    // Mouse events
+    card.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', stopDrag);
+
+    // Touch events
+    card.addEventListener('touchstart', startDrag);
+    document.addEventListener('touchmove', handleDrag);
+    document.addEventListener('touchend', stopDrag);
+    
+    function updateTransform() {
+        const scale = card.classList.contains('hover') ? 1.025 : 1; card.style.transform = `translate(${cardX - originalCardX - cardRadiusX + relativeX}px, ${cardY - originalCardY - cardRadiusY + relativeY}px) scale(${scale})`;
+    }
+    
+
+    // Animation loop for dragging
+    function animateDrag() {
+        if (isDragging) {
+            // Clear any existing timeout while dragging
+            if (stopTimeoutId) {
+                clearTimeout(stopTimeoutId);
+                stopTimeoutId = null;
+            }
+
+            cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
+            cardY += (dragMouseY - cardY - newRelativeY) * dragDelay; 
+        } else {
+            // Snap to last position when mouse or touch is released
+            cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
+            cardY += (dragMouseY - cardY - newRelativeY) * dragDelay;
+
+            // Set a timeout to stop animation after a delay
+            if (!stopTimeoutId) {
+                stopTimeoutId = setTimeout(() => {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;                
+                }, 3000);  // 1 second delay before stopping the animation
+            }
+        }
+
+        // Define boundaries in vw and vh
+        const dragMinX = -0.15 * window.innerWidth;
+        const dragMaxX = 1.15 * window.innerWidth;
+        const dragMinY = -0.45 * window.innerHeight;
+        const dragMaxY = 4.95 * window.innerHeight;
+
+        // Clamp the draggable content position within defined boundaries
+        cardX = Math.max(dragMinX, Math.min(dragMaxX, cardX));
+        cardY = Math.max(dragMinY, Math.min(dragMaxY, cardY));
+
+        // Combine dragging and scaling transformations
+        const scale = card.classList.contains('hover') ? 1.025 : 1; // Check if card is hovered
+        card.style.transform = `translate(${cardX - originalCardX - cardRadiusX + relativeX}px, ${cardY - originalCardY - cardRadiusY + relativeY}px) scale(${scale})`;
+
+        // Continue the animation loop
+        animationFrameId = requestAnimationFrame(animateDrag);
+        
+        
+    }
+    // Add mouseenter and mouseleave events to manage hover state
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+            card.classList.add('hover');
+            updateTransform();
+            });
+
+            card.addEventListener('mouseleave', () => {
+            card.classList.remove('hover');
+            updateTransform();
+            });
+        }); 
+});
+        
+
     
     </script>
 </body>
