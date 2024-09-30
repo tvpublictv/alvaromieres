@@ -384,79 +384,79 @@
         
         // --- DATE ---
 
-const startYear = 24;  // Starting year
-const startPercentage = 0.0888;
+        const startYear = 24;  // Starting year
+        const startPercentage = 0.0888;
 
-const yearDisplay = document.getElementById('yearDisplay');
-const yearBlurDisplay = document.getElementById('yearBlur');  // Corrected duplicate id
-const monthDisplay = document.getElementById('monthDisplay');
+        const yearDisplay = document.getElementById('yearDisplay');
+        const yearBlurDisplay = document.getElementById('yearBlur');  // Corrected duplicate id
+        const monthDisplay = document.getElementById('monthDisplay');
 
-// Custom for each year
-const scrollPercentages = {
-    24: 0.25,
-    23: 0.15,
-    22: 0.15,
-    21: 0.15,
-    20: 0.10,
-    19: 0.10,
-    18: 0.10,
-    // Max should be 1
-};
+        // Custom for each year
+        const scrollPercentages = {
+            24: 0.25,
+            23: 0.15,
+            22: 0.15,
+            21: 0.15,
+            20: 0.10,
+            19: 0.10,
+            18: 0.10,
+            // Max should be 1
+        };
 
-const monthNames = [
-    'january', 'february', 'march', 'april', 'may', 'june',
-    'july', 'august', 'september', 'october', 'november', 'december'
-];
+        const monthNames = [
+            'january', 'february', 'march', 'april', 'may', 'june',
+            'july', 'august', 'september', 'october', 'november', 'december'
+        ];
 
-const totalYears = Object.keys(scrollPercentages).length;
+        const totalYears = Object.keys(scrollPercentages).length;
 
-function updateDate() {
-    // Get the current translate values of the draggable content
-    const scrollTranslate = getScrollTranslateValues(draggableContent);
-    scrollTranslateY = scrollTranslate.y;
+        function updateDate() {
+            // Get the current translate values of the draggable content
+            const scrollTranslate = getScrollTranslateValues(draggableContent);
+            scrollTranslateY = scrollTranslate.y;
 
-    // Define the range for y position of the target div in vh units
-    const minTop = -4 * window.innerHeight; // -4vh
-    const maxTop = 0.5 * window.innerHeight; // 0.5vh
+            // Define the range for y position of the target div in vh units
+            const minTop = -4 * window.innerHeight; // -4vh
+            const maxTop = 0.5 * window.innerHeight; // 0.5vh
 
-    // Normalize the y position to a 0-1 scale
-    const normalizedY = (scrollTranslateY - minTop) / (maxTop - minTop);
+            // Normalize the y position to a 0-1 scale
+            const normalizedY = (scrollTranslateY - minTop) / (maxTop - minTop);
 
-    let cumulativeScrollPercent = 1;  // Start from 1 for inverse scroll
-    let currentYear = startYear;
-    let monthsPassed = 0;
+            let cumulativeScrollPercent = 1;  // Start from 1 for inverse scroll
+            let currentYear = startYear;
+            let monthsPassed = 0;
 
-    // Loop through the years, but progress inversely
-    for (let year = startYear; year >= startYear - totalYears + 1; year--) {
-        const yearScrollPercent = scrollPercentages[year];
-        cumulativeScrollPercent -= yearScrollPercent;  // Decrease the cumulative scroll for inverse
+            // Loop through the years, but progress inversely
+            for (let year = startYear; year >= startYear - totalYears + 1; year--) {
+                const yearScrollPercent = scrollPercentages[year];
+                cumulativeScrollPercent -= yearScrollPercent;  // Decrease the cumulative scroll for inverse
 
-        if (normalizedY >= cumulativeScrollPercent) {
-            currentYear = year;
+                if (normalizedY >= cumulativeScrollPercent) {
+                    currentYear = year;
 
-            // Calculate how many months have passed in the current year
-            const yearScrollRange = yearScrollPercent;
-            const yearScrollEnd = cumulativeScrollPercent + yearScrollRange;
-            const yearScrollProgress = (normalizedY - cumulativeScrollPercent) / yearScrollRange;
+                    // Calculate how many months have passed in the current year
+                    const yearScrollRange = yearScrollPercent;
+                    const yearScrollEnd = cumulativeScrollPercent + yearScrollRange;
+                    const yearScrollProgress = (normalizedY - cumulativeScrollPercent) / yearScrollRange;
 
-            // Convert the scroll progress to months (0 to 11)
-            monthsPassed = Math.floor(yearScrollProgress * 12);
-            break;
+                    // Convert the scroll progress to months (0 to 11)
+                    monthsPassed = Math.floor(yearScrollProgress * 12);
+                    break;
+                }
+            }
+
+            // Ensure monthsPassed wraps around within 0-11 range
+            monthsPassed = (monthsPassed + 12) % 12;
+
+            // Display the current year and month
+            yearDisplay.innerHTML = currentYear;
+            monthDisplay.innerHTML = monthNames[monthsPassed];
+
+            console.log(scrollTranslateY, normalizedY);
         }
-    }
 
-    // Ensure monthsPassed wraps around within 0-11 range
-    monthsPassed = (monthsPassed + 12) % 12;
-
-    // Display the current year and month
-    yearDisplay.innerHTML = currentYear;
-    monthDisplay.innerHTML = monthNames[monthsPassed];
-    
-    console.log(scrollTranslateY, normalizedY);
-}
-
-// Call updateDate on scroll or translation change
-window.addEventListener('load', updateDate);
+        // Call updateDate on scroll or translation change
+        window.addEventListener('load', updateDate);
 
 
         
@@ -464,160 +464,164 @@ window.addEventListener('load', updateDate);
          // --- DRAGS ---  
 
         const cards = document.querySelectorAll('.card');
-        const relativePos = document.querySelector('.background');
-        const dragDelay = 0.05; 
+const relativePos = document.querySelector('.background');
+const dragDelay = 0.05; 
 
-        cards.forEach(card => {
+cards.forEach(card => {
 
+    let isDragging = false;
+    let dragMouseX = 0;
+    let dragMouseY = 0;
 
-            let isDragging = false;
-            let dragMouseX = 0;
-            let dragMouseY = 0;
+    let relativeX = -relativePos.offsetLeft;
+    let relativeY = -relativePos.offsetTop;
 
-            let relativeX = -relativePos.offsetLeft;
-            let relativeY = -relativePos.offsetTop;
+    let newRelativeX = 0;
+    let newRelativeY = 0;
 
-            let newRelativeX = 0;
-            let newRelativeY = 0;
+    let cardRadiusX = card.offsetWidth / 2;
+    let cardRadiusY = card.offsetHeight / 2;
 
-            let cardRadiusX = card.offsetWidth / 2;
-            let cardRadiusY = card.offsetHeight / 2;
+    let cardX = (card.offsetLeft + cardRadiusX - relativeX); 
+    let cardY = (card.offsetTop + cardRadiusY - relativeY);
 
-            let cardX = (card.offsetLeft + cardRadiusX - relativeX); 
-            let cardY = (card.offsetTop + cardRadiusY - relativeY);
+    let originalCardX = card.offsetLeft; 
+    let originalCardY = card.offsetTop;
 
-            let originalCardX = card.offsetLeft; 
-            let originalCardY = card.offsetTop;
+    let animationFrameId = null; 
+    let stopTimeoutId = null;  // Timeout ID to manage stop delay
 
-            let animationFrameId = null; 
-            let stopTimeoutId = null;  // Timeout ID to manage stop delay
-
-            // Utility to get the correct clientX and clientY for both touch and mouse events
-            const getClientPosition = (event) => {
-                if (event.touches && event.touches.length > 0) {
-                    return {
-                        x: event.touches[0].clientX,
-                        y: event.touches[0].clientY
-                    };
-                }
-                return {
-                    x: event.clientX,
-                    y: event.clientY
-                };
+    // Utility to get the correct clientX and clientY for both touch and mouse events
+    const getClientPosition = (event) => {
+        if (event.touches && event.touches.length > 0) {
+            return {
+                x: event.touches[0].clientX,
+                y: event.touches[0].clientY
             };
-            // Recalculate relativeX and relativeY after window resize
-            const updateRelativePosition = () => {
-                relativeX = -relativePos.offsetLeft;
-                relativeY = -relativePos.offsetTop;
-            };
+        }
+        return {
+            x: event.clientX,
+            y: event.clientY
+        };
+    };
 
-            // Start dragging (Mouse + Touch)
-            const startDrag = (event) => {
-                isDragging = true;  
-                const relativeTranslate = getScrollTranslateValues(relativePos);
-                newRelativeX = relativeTranslate.x;
-                newRelativeY = relativeTranslate.y;
+    // Recalculate relativeX, relativeY, and other card-related variables after window resize
+    const updateRelativePosition = () => {
+        relativeX = -relativePos.offsetLeft;
+        relativeY = -relativePos.offsetTop;
+        cardRadiusX = card.offsetWidth / 2;
+        cardRadiusY = card.offsetHeight / 2;
+        originalCardX = card.offsetLeft;
+        originalCardY = card.offsetTop;
+        cardX = (originalCardX + cardRadiusX - relativeX); 
+        cardY = (originalCardY + cardRadiusY - relativeY);
+    };
 
-                const clientPos = getClientPosition(event);
-                dragMouseX = clientPos.x; 
-                dragMouseY = clientPos.y;
-                // Recalculate relative positions when dragging starts
+    // Call updateRelativePosition when the window is resized
+    window.addEventListener('resize', updateRelativePosition);
 
+    // Start dragging (Mouse + Touch)
+    const startDrag = (event) => {
+        isDragging = true;  
+        const relativeTranslate = getScrollTranslateValues(relativePos);
+        newRelativeX = relativeTranslate.x;
+        newRelativeY = relativeTranslate.y;
 
-                event.preventDefault(); 
-                event.stopPropagation();
+        const clientPos = getClientPosition(event);
+        dragMouseX = clientPos.x; 
+        dragMouseY = clientPos.y;
 
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = requestAnimationFrame(animateDrag);
-            };
+        event.preventDefault(); 
+        event.stopPropagation();
 
-            // Handle mousemove and touchmove events
-            const handleDrag = (event) => {
-                if (isDragging) {
-                    const clientPos = getClientPosition(event);
-                    dragMouseX = clientPos.x;
-                    dragMouseY = clientPos.y;
-                }
-            };
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(animateDrag);
+    };
 
-            // Stop dragging (Mouse + Touch)
-            const stopDrag = () => {
-                isDragging = false;
-            };
+    // Handle mousemove and touchmove events
+    const handleDrag = (event) => {
+        if (isDragging) {
+            const clientPos = getClientPosition(event);
+            dragMouseX = clientPos.x;
+            dragMouseY = clientPos.y;
+        }
+    };
 
-            // Mouse events
-            card.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', handleDrag);
-            document.addEventListener('mouseup', stopDrag);
+    // Stop dragging (Mouse + Touch)
+    const stopDrag = () => {
+        isDragging = false;
+    };
 
-            // Touch events
-            card.addEventListener('touchstart', startDrag);
-            document.addEventListener('touchmove', handleDrag);
-            document.addEventListener('touchend', stopDrag);
+    // Mouse events
+    card.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', stopDrag);
 
-            function updateTransform() {
-                const scale = card.classList.contains('hover') ? 1.025 : 1; card.style.transform = `translate(${cardX - originalCardX - cardRadiusX + relativeX}px, ${cardY - originalCardY - cardRadiusY + relativeY}px) scale(${scale})`;
+    // Touch events
+    card.addEventListener('touchstart', startDrag);
+    document.addEventListener('touchmove', handleDrag);
+    document.addEventListener('touchend', stopDrag);
+
+    function updateTransform() {
+        const scale = card.classList.contains('hover') ? 1.025 : 1; 
+        card.style.transform = `translate(${cardX - originalCardX - cardRadiusX + relativeX}px, ${cardY - originalCardY - cardRadiusY + relativeY}px) scale(${scale})`;
+    }
+
+    // Animation loop for dragging
+    function animateDrag() {
+        if (isDragging) {
+            // Clear any existing timeout while dragging
+            if (stopTimeoutId) {
+                clearTimeout(stopTimeoutId);
+                stopTimeoutId = null;
             }
 
+            cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
+            cardY += (dragMouseY - cardY - newRelativeY) * dragDelay; 
+        } else {
+            // Snap to last position when mouse or touch is released
+            cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
+            cardY += (dragMouseY - cardY - newRelativeY) * dragDelay;
 
-            // Animation loop for dragging
-            function animateDrag() {
-                if (isDragging) {
-                    // Clear any existing timeout while dragging
-                    if (stopTimeoutId) {
-                        clearTimeout(stopTimeoutId);
-                        stopTimeoutId = null;
-                    }
-
-                    cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
-                    cardY += (dragMouseY - cardY - newRelativeY) * dragDelay; 
-                } else {
-                    // Snap to last position when mouse or touch is released
-                    cardX += (dragMouseX - cardX - newRelativeX) * dragDelay; 
-                    cardY += (dragMouseY - cardY - newRelativeY) * dragDelay;
-
-                    // Set a timeout to stop animation after a delay
-                    if (!stopTimeoutId) {
-                        stopTimeoutId = setTimeout(() => {
-                            cancelAnimationFrame(animationFrameId);
-                            animationFrameId = null;                
-                        }, 3000);  // 1 second delay before stopping the animation
-                    }
-                }
-
-                // Define boundaries in vw and vh
-                const dragMinX = -0.15 * window.innerWidth;
-                const dragMaxX = 1.15 * window.innerWidth;
-                const dragMinY = -0.45 * window.innerHeight;
-                const dragMaxY = 4.95 * window.innerHeight;
-
-                // Clamp the draggable content position within defined boundaries
-                cardX = Math.max(dragMinX, Math.min(dragMaxX, cardX));
-                cardY = Math.max(dragMinY, Math.min(dragMaxY, cardY));
-
-                // Combine dragging and scaling transformations
-                const scale = card.classList.contains('hover') ? 1.025 : 1; // Check if card is hovered
-                card.style.transform = `translate(${cardX - originalCardX - cardRadiusX + relativeX}px, ${cardY - originalCardY - cardRadiusY + relativeY}px) scale(${scale})`;
-
-                // Continue the animation loop
-                animationFrameId = requestAnimationFrame(animateDrag);
-
-
+            // Set a timeout to stop animation after a delay
+            if (!stopTimeoutId) {
+                stopTimeoutId = setTimeout(() => {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;                
+                }, 3000);  // 1 second delay before stopping the animation
             }
-            // Add mouseenter and mouseleave events to manage hover state
-                cards.forEach(card => {
-                    card.addEventListener('mouseenter', () => {
-                    card.classList.add('hover');
-                    updateTransform();
-                    });
+        }
 
-                    card.addEventListener('mouseleave', () => {
-                    card.classList.remove('hover');
-                    updateTransform();
-                    });
-                }); 
+        // Define boundaries in vw and vh
+        const dragMinX = -0.15 * window.innerWidth;
+        const dragMaxX = 1.15 * window.innerWidth;
+        const dragMinY = -0.45 * window.innerHeight;
+        const dragMaxY = 4.95 * window.innerHeight;
 
-        });
+        // Clamp the draggable content position within defined boundaries
+        cardX = Math.max(dragMinX, Math.min(dragMaxX, cardX));
+        cardY = Math.max(dragMinY, Math.min(dragMaxY, cardY));
+
+        // Combine dragging and scaling transformations
+        const scale = card.classList.contains('hover') ? 1.025 : 1; // Check if card is hovered
+        card.style.transform = `translate(${cardX - originalCardX - cardRadiusX + relativeX}px, ${cardY - originalCardY - cardRadiusY + relativeY}px) scale(${scale})`;
+
+        // Continue the animation loop
+        animationFrameId = requestAnimationFrame(animateDrag);
+    }
+
+    // Add mouseenter and mouseleave events to manage hover state
+    card.addEventListener('mouseenter', () => {
+        card.classList.add('hover');
+        updateTransform();
+    });
+
+    card.addEventListener('mouseleave', () => {
+        card.classList.remove('hover');
+        updateTransform();
+    });
+});
+
     </script>
 </body>
 
